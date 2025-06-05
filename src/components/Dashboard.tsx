@@ -488,10 +488,10 @@ export function Dashboard({ onLogout }: DashboardProps) {
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-foreground">
-                    EventStore UI
+                    KUBAD
                   </h1>
                   <p className="text-xs text-muted-foreground">
-                    KurrentDB Management
+                    Kurrent UI But Actually Decent
                   </p>
                 </div>
               </div>
@@ -562,7 +562,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
                   Event Store Dashboard
                 </h1>
                 <p className="text-muted-foreground">
-                  Monitor and manage your KurrentDB instance
+                  Monitor and manage your EventStore instance
                 </p>
               </div>
               <div className="flex items-center space-x-3">

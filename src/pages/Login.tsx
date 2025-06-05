@@ -191,7 +191,7 @@ export function Login({ onLogin, preselectedServerId }: LoginProps) {
         <CardHeader>
           <CardTitle className="text-primary flex items-center gap-2">
             <Database className="h-5 w-5" />
-            Less shitty Kurrent UI
+            KUBAD
           </CardTitle>
           <CardDescription>
             Select a server and enter your credentials

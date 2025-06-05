@@ -1,9 +1,9 @@
-# KurrentDB EventStore UI Project
+# KUBAD - EventStore UI Project
 
 ## API Documentation
 
-### KurrentDB HTTP API v25.0
-- **Base URL**: Typically https://kurrent.io
+### EventStore HTTP API v25.0
+- **Base URL**: Typically https://eventstore.com
 - **Authentication**: Basic HTTP authentication required for most endpoints
 
 ### Major Endpoint Categories:
@@ -41,7 +41,7 @@
 - Supports cluster gossip and node management
 
 ### API Reference
-Full documentation: https://docs.kurrent.io/http-api/v25.0/api
+Full documentation: https://developers.eventstore.com/server/v21.10/http-api/
 
 ### Libraries
 Its using Tailwind v4

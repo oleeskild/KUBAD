@@ -2,7 +2,9 @@
 
 **Kurrent UI But Actually Decent**
 
-A modern web interface for EventStore (Kurrent) with a clean, responsive design built with React, TypeScript, and Tailwind CSS. It's actually decent compared to the official UI.
+A modern web interface for EventStore with a clean, responsive design built with React, TypeScript, and Tailwind CSS.
+
+🚀 **Try it now at [kubad.ole.dev](https://kubad.ole.dev)**
 
 ## Features
 

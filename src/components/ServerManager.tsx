@@ -319,6 +319,17 @@ export function ServerManager({ onServerSelect, onClose, onServersUpdated }: Ser
                     required
                   />
                 </div>
+                <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5" />
+                    <div className="text-sm text-blue-800 dark:text-blue-200">
+                      <p className="font-medium">Credentials stored locally</p>
+                      <p className="text-xs mt-1 text-blue-700 dark:text-blue-300">
+                        Your credentials are stored securely in your browser's local storage and never sent to external servers.
+                      </p>
+                    </div>
+                  </div>
+                </div>
                 <div className="flex justify-end gap-2 pt-4">
                   <Button 
                     type="button" 

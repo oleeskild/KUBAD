@@ -93,8 +93,14 @@ export const Route = createRootRoute({
       }
     }
 
+    // Handle authentication redirect in useEffect instead of during render
+    useEffect(() => {
+      if (!auth.isAuthenticated() && window.location.pathname !== '/login') {
+        router.navigate({ to: '/login', search: { serverId: undefined } })
+      }
+    }, [router])
+
     if (!auth.isAuthenticated() && window.location.pathname !== '/login') {
-      router.navigate({ to: '/login', search: { serverId: undefined } })
       return null
     }
 

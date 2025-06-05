@@ -1,0 +1,24 @@
+@theme {
+  /* Solarized-inspired dark theme with warmer, milder tones */
+  --color-border: 200 15% 25%;
+  --color-input: 200 12% 28%;
+  --color-ring: 343 60% 70%;
+  --color-background: 200 12% 8%;
+  --color-foreground: 45 25% 85%;
+  --color-primary: 343 55% 65%;
+  --color-primary-foreground: 200 15% 12%;
+  --color-secondary: 200 8% 18%;
+  --color-secondary-foreground: 45 20% 75%;
+  --color-destructive: 0 50% 45%;
+  --color-destructive-foreground: 45 25% 85%;
+  --color-muted: 200 10% 22%;
+  --color-muted-foreground: 200 8% 55%;
+  --color-accent: 200 8% 20%;
+  --color-accent-foreground: 45 20% 80%;
+  --color-popover: 200 10% 12%;
+  --color-popover-foreground: 45 25% 85%;
+  --color-card: 200 10% 12%;
+  --color-card-foreground: 45 25% 85%;
+  
+  --radius: 0.5rem;
+}

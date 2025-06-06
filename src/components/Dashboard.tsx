@@ -50,7 +50,7 @@ import {
   PinOff,
 } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { solarizedlight, tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -488,10 +488,10 @@ export function Dashboard({ onLogout }: DashboardProps) {
                   <Database className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-foreground">
+                  <h1 className="text-xl font-bold text-keyword">
                     KUBAD
                   </h1>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-info">
                     Kurrent UI But Actually Decent
                   </p>
                 </div>
@@ -561,21 +561,21 @@ export function Dashboard({ onLogout }: DashboardProps) {
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-foreground mb-2">
+                <h1 className="text-3xl font-bold text-keyword mb-2">
                   Event Store Dashboard
                 </h1>
-                <p className="text-muted-foreground">
+                <p className="text-subtitle">
                   Monitor and manage your EventStore instance
                 </p>
               </div>
               <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-2 text-sm">
                   <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-muted-foreground">Connected</span>
+                  <span className="text-success">Connected</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Online</span>
+                  <Globe className="h-4 w-4 text-info" />
+                  <span className="text-info">Online</span>
                 </div>
               </div>
             </div>
@@ -648,10 +648,10 @@ export function Dashboard({ onLogout }: DashboardProps) {
                     <Card className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-2">
-                          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">CPU Usage</span>
+                          <TrendingUp className="h-4 w-4 text-warning" />
+                          <span className="text-sm font-medium text-subtitle">CPU Usage</span>
                         </div>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-number font-medium">
                           {stats?.proc?.cpu !== undefined
                             ? `${stats.proc.cpu.toFixed(1)}%`
                             : "N/A"}
@@ -674,12 +674,12 @@ export function Dashboard({ onLogout }: DashboardProps) {
                     <Card className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-2">
-                          <Activity className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">
+                          <Activity className="h-4 w-4 text-info" />
+                          <span className="text-sm font-medium text-subtitle">
                             Memory Usage
                           </span>
                         </div>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-number font-medium">
                           {stats?.proc?.mem
                             ? `${(stats.proc.mem / 1024 / 1024 / 1024).toFixed(1)} GB`
                             : "N/A"}
@@ -705,12 +705,12 @@ export function Dashboard({ onLogout }: DashboardProps) {
                     <Card className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-2">
-                          <Database className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">
+                          <Database className="h-4 w-4 text-string" />
+                          <span className="text-sm font-medium text-subtitle">
                             Active Queues
                           </span>
                         </div>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-number font-medium">
                           {(() => {
                             if (!stats) return 0;
                             const queues =
@@ -727,12 +727,12 @@ export function Dashboard({ onLogout }: DashboardProps) {
                     <Card className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-2">
-                          <Radio className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">
+                          <Radio className="h-4 w-4 text-highlight" />
+                          <span className="text-sm font-medium text-subtitle">
                             Queue Items
                           </span>
                         </div>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-number font-medium">
                           {(() => {
                             if (!stats) return 0;
                             const queues =
@@ -759,13 +759,13 @@ export function Dashboard({ onLogout }: DashboardProps) {
             <TabsContent value="streams" className="space-y-8">
               <div className="flex items-center justify-between">
                 <div className="space-y-2">
-                  <h2 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-3">
+                  <h2 className="text-3xl font-bold tracking-tight text-keyword flex items-center gap-3">
                     <div className="p-2 bg-primary/10 rounded-lg">
                       <Layers className="h-6 w-6 text-primary" />
                     </div>
                     Event Streams
                   </h2>
-                  <p className="text-muted-foreground">
+                  <p className="text-subtitle">
                     Browse and explore your event streams
                   </p>
                 </div>
@@ -790,7 +790,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
               {!selectedStream ? (
                 <Card className="shadow-lg border border-border bg-card">
                   <CardHeader className="bg-muted border border-border border-b border-border">
-                    <CardTitle className="text-primary font-semibold">
+                    <CardTitle className="text-keyword font-semibold">
                       Event Streams
                     </CardTitle>
                     <div className="relative">
@@ -828,10 +828,10 @@ export function Dashboard({ onLogout }: DashboardProps) {
                         <TableBody>
                           {filteredStreams.map((stream) => (
                             <TableRow key={stream.streamId}>
-                              <TableCell className="font-medium">
+                              <TableCell className="font-medium text-code">
                                 {stream.streamId}
                               </TableCell>
-                              <TableCell>{stream.eventCount}</TableCell>
+                              <TableCell className="text-number font-medium">{stream.eventCount}</TableCell>
                               <TableCell>
                                 {new Date(stream.created).toLocaleString()}
                               </TableCell>
@@ -875,10 +875,10 @@ export function Dashboard({ onLogout }: DashboardProps) {
                               onClick={() => toggleEvent(event)}
                             >
                               <div className="flex items-center gap-4">
-                                <span className="text-sm font-mono text-muted-foreground">
+                                <span className="text-sm font-mono text-number">
                                   #{event.eventNumber}
                                 </span>
-                                <span className="font-medium">
+                                <span className="font-medium text-keyword">
                                   {event.eventType}
                                 </span>
                                 <span className="text-sm text-muted-foreground">
@@ -916,12 +916,14 @@ export function Dashboard({ onLogout }: DashboardProps) {
                                 ) : (
                                   <SyntaxHighlighter
                                     language="json"
-                                    style={vscDarkPlus}
+                                    style={document.documentElement.classList.contains('dark') ? tomorrow : solarizedlight}
                                     className="rounded-md text-sm"
                                     customStyle={{
                                       margin: 0,
-                                      background: "hsl(var(--muted))",
+                                      background: "hsl(var(--card)) !important",
                                       fontSize: "0.875rem",
+                                      border: "1px solid hsl(var(--border))",
+                                      padding: "12px",
                                     }}
                                   >
                                     {JSON.stringify(
@@ -965,7 +967,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
 
               <Card className="shadow-lg border border-border bg-card">
                 <CardHeader className="bg-muted border border-border border-b border-border space-y-4">
-                  <CardTitle className="text-primary font-semibold flex items-center gap-2">
+                  <CardTitle className="text-keyword font-semibold flex items-center gap-2">
                     <GitBranch className="h-5 w-5" />
                     Active Subscriptions
                   </CardTitle>
@@ -1718,13 +1720,14 @@ export function Dashboard({ onLogout }: DashboardProps) {
                                       ) : (
                                         <SyntaxHighlighter
                                           language="json"
-                                          style={vscDarkPlus}
+                                          style={document.documentElement.classList.contains('dark') ? tomorrow : solarizedlight}
                                           className="rounded text-xs max-h-64 overflow-y-auto"
                                           customStyle={{
                                             margin: 0,
-                                            background:
-                                              "hsl(var(--background))",
+                                            background: "hsl(var(--card)) !important",
                                             fontSize: "0.75rem",
+                                            border: "1px solid hsl(var(--border))",
+                                            padding: "12px",
                                           }}
                                         >
                                           {JSON.stringify(

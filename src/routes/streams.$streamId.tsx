@@ -68,11 +68,11 @@ function StreamDetailsPage() {
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-4">
-                        <span className="text-sm font-mono text-muted-foreground">
+                        <span className="text-sm font-mono text-number">
                           #{event.eventNumber}
                         </span>
-                        <span className="font-medium">{event.eventType}</span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="font-medium text-keyword">{event.eventType}</span>
+                        <span className="text-sm text-muted-readable">
                           {new Date(event.created).toLocaleString()}
                         </span>
                       </div>
@@ -89,15 +89,15 @@ function StreamDetailsPage() {
                   {expandedEvents.has(event.eventId) && (
                     <div className="mt-4 space-y-4">
                       <div>
-                        <h4 className="text-sm font-medium mb-2">Event Data</h4>
-                        <pre className="bg-muted p-3 rounded-md overflow-x-auto text-sm">
+                        <h4 className="text-sm font-medium mb-2 text-info">Event Data</h4>
+                        <pre className="bg-muted p-3 rounded-md overflow-x-auto text-sm text-code">
                           {JSON.stringify(event.data, null, 2)}
                         </pre>
                       </div>
                       {event.metadata && Object.keys(event.metadata).length > 0 && (
                         <div>
-                          <h4 className="text-sm font-medium mb-2">Metadata</h4>
-                          <pre className="bg-muted p-3 rounded-md overflow-x-auto text-sm">
+                          <h4 className="text-sm font-medium mb-2 text-highlight">Metadata</h4>
+                          <pre className="bg-muted p-3 rounded-md overflow-x-auto text-sm text-code">
                             {JSON.stringify(event.metadata, null, 2)}
                           </pre>
                         </div>

@@ -14,7 +14,7 @@ import {
   Minimize2,
 } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { tomorrow, solarizedlight } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 interface EventsPanelProps {
   selectedStream: string | null;
@@ -70,10 +70,10 @@ export function EventsPanel({
   if (!selectedStream) {
     return (
       <div className="p-4 h-full border-l border-border">
-        <div className="flex items-center justify-center h-full text-muted-foreground">
+        <div className="flex items-center justify-center h-full text-muted-readable">
           <div className="text-center">
             <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Select an instance to view events</p>
+            <p className="text-subtitle">Select an instance to view events</p>
           </div>
         </div>
       </div>
@@ -85,8 +85,8 @@ export function EventsPanel({
       <div className="space-y-4 h-full">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-primary">Events</h3>
-            <p className="text-sm text-muted-foreground">{selectedStream}</p>
+            <h3 className="text-lg font-semibold text-keyword">Events</h3>
+            <p className="text-sm text-code">{selectedStream}</p>
           </div>
           <div className="flex items-center gap-2">
             {/* Pin button for current stream */}
@@ -249,12 +249,14 @@ export function EventsPanel({
                         ) : (
                           <SyntaxHighlighter
                             language="json"
-                            style={vscDarkPlus}
+                            style={document.documentElement.classList.contains('dark') ? tomorrow : solarizedlight}
                             className="rounded text-xs max-h-64 overflow-y-auto"
                             customStyle={{
                               margin: 0,
-                              background: "hsl(var(--background))",
+                              background: "hsl(var(--card)) !important",
                               fontSize: "0.75rem",
+                              border: "1px solid hsl(var(--border))",
+                              padding: "12px",
                             }}
                           >
                             {JSON.stringify(

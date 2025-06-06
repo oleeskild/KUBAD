@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
-/* Define CSS custom properties that can be overridden */
+/* Developer-friendly solarized theme with vibrant, readable colors */
 :root {
-  --background: 250 250 250; /* #fafafa */
-  --foreground: 15 23 42; /* #0f172a */
-  --card: 255 255 255; /* #ffffff */
-  --card-foreground: 15 23 42; /* #0f172a */
-  --popover: 255 255 255; /* #ffffff */
-  --popover-foreground: 15 23 42; /* #0f172a */
-  --primary: 59 130 246; /* #3b82f6 */
-  --primary-foreground: 255 255 255; /* #ffffff */
-  --secondary: 241 245 249; /* #f1f5f9 */
-  --secondary-foreground: 51 65 85; /* #334155 */
-  --muted: 248 250 252; /* #f8fafc */
-  --muted-foreground: 100 116 139; /* #64748b */
-  --accent: 239 246 255; /* #eff6ff */
-  --accent-foreground: 29 78 216; /* #1d4ed8 */
-  --destructive: 239 68 68; /* #ef4444 */
-  --destructive-foreground: 255 255 255; /* #ffffff */
-  --border: 226 232 240; /* #e2e8f0 */
-  --input: 226 232 240; /* #e2e8f0 */
-  --ring: 59 130 246; /* #3b82f6 */
+  --background: 253 246 227; /* #fdf6e3 - solarized base3 */
+  --foreground: 7 54 66; /* #073642 - solarized base02 (much darker, better contrast) */
+  --card: 238 232 213; /* #eee8d5 - solarized base2 */
+  --card-foreground: 7 54 66; /* #073642 - solarized base02 (dark, readable) */
+  --popover: 238 232 213; /* #eee8d5 - solarized base2 */
+  --popover-foreground: 7 54 66; /* #073642 - solarized base02 */
+  --primary: 38 139 210; /* #268bd2 - solarized blue */
+  --primary-foreground: 253 246 227; /* #fdf6e3 - solarized base3 */
+  --secondary: 220 214 191; /* #dcd6bf - slightly darker than base2 */
+  --secondary-foreground: 7 54 66; /* #073642 - dark readable text */
+  --muted: 238 232 213; /* #eee8d5 - solarized base2 */
+  --muted-foreground: 88 110 117; /* #586e75 - solarized base01 (medium contrast) */
+  --accent: 42 161 152; /* #2aa198 - solarized cyan */
+  --accent-foreground: 253 246 227; /* #fdf6e3 - solarized base3 */
+  --destructive: 220 50 47; /* #dc322f - solarized red */
+  --destructive-foreground: 253 246 227; /* #fdf6e3 - solarized base3 */
+  --border: 220 214 191; /* #dcd6bf - warm border */
+  --input: 220 214 191; /* #dcd6bf - warm input background */
+  --ring: 38 139 210; /* #268bd2 - solarized blue */
   --radius: 0.5rem;
 }
 
@@ -113,4 +113,56 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-ring);
   outline-offset: 2px;
+}
+
+/* Developer-friendly color coding for different text types */
+.text-code {
+  color: rgb(133 153 0); /* #859900 - solarized green for code */
+  font-family: ui-monospace, "SFMono-Regular", "SF Mono", Monaco, Menlo, monospace;
+}
+
+.text-string {
+  color: rgb(42 161 152); /* #2aa198 - solarized cyan for strings */
+}
+
+.text-number {
+  color: rgb(211 54 130); /* #d33682 - solarized magenta for numbers */
+}
+
+.text-keyword {
+  color: rgb(108 113 196); /* #6c71c4 - solarized violet for keywords */
+  font-weight: 500;
+}
+
+.text-error {
+  color: rgb(220 50 47); /* #dc322f - solarized red for errors */
+  font-weight: 500;
+}
+
+.text-warning {
+  color: rgb(203 75 22); /* #cb4b16 - solarized orange for warnings */
+  font-weight: 500;
+}
+
+.text-success {
+  color: rgb(133 153 0); /* #859900 - solarized green for success */
+  font-weight: 500;
+}
+
+.text-info {
+  color: rgb(38 139 210); /* #268bd2 - solarized blue for info */
+}
+
+.text-highlight {
+  color: rgb(181 137 0); /* #b58900 - solarized yellow for highlights */
+  font-weight: 500;
+}
+
+.text-muted-readable {
+  color: rgb(88 110 117); /* #586e75 - solarized base01 for readable muted text */
+}
+
+.text-subtitle {
+  color: rgb(101 123 131); /* #657b83 - solarized base00 for subtitles */
+  font-weight: 500;
 }

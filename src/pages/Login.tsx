@@ -189,11 +189,11 @@ export function Login({ onLogin, preselectedServerId }: LoginProps) {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md border-primary/20 shadow-lg">
         <CardHeader>
-          <CardTitle className="text-primary flex items-center gap-2">
+          <CardTitle className="text-keyword flex items-center gap-2">
             <Database className="h-5 w-5" />
             KUBAD
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-subtitle">
             Select a server and enter your credentials
           </CardDescription>
         </CardHeader>

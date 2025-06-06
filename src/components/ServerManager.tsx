@@ -251,11 +251,11 @@ export function ServerManager({ onServerSelect, onClose, onServersUpdated }: Ser
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <Server className="h-6 w-6" />
+          <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2 text-keyword">
+            <Server className="h-6 w-6 text-primary" />
             Server Management
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-subtitle">
             Manage your EventStore server connections
           </p>
         </div>
@@ -323,8 +323,8 @@ export function ServerManager({ onServerSelect, onClose, onServersUpdated }: Ser
                   <div className="flex items-start gap-2">
                     <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5" />
                     <div className="text-sm text-blue-800 dark:text-blue-200">
-                      <p className="font-medium">Credentials stored locally</p>
-                      <p className="text-xs mt-1 text-blue-700 dark:text-blue-300">
+                      <p className="font-medium text-info">Credentials stored locally</p>
+                      <p className="text-xs mt-1 text-muted-readable">
                         Your credentials are stored securely in your browser's local storage and never sent to external servers.
                       </p>
                     </div>
@@ -357,14 +357,14 @@ export function ServerManager({ onServerSelect, onClose, onServersUpdated }: Ser
 
       <Card>
         <CardHeader>
-          <CardTitle>Configured Servers</CardTitle>
+          <CardTitle className="text-keyword">Configured Servers</CardTitle>
         </CardHeader>
         <CardContent>
           {servers.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Server className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>No servers configured yet</p>
-              <p className="text-sm">Add your first EventStore server to get started</p>
+              <p className="text-subtitle">No servers configured yet</p>
+              <p className="text-sm text-muted-readable">Add your first EventStore server to get started</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -381,8 +381,8 @@ export function ServerManager({ onServerSelect, onClose, onServersUpdated }: Ser
                 <TableBody>
                 {servers.map((server) => (
                   <TableRow key={server.id}>
-                    <TableCell className="font-medium">{server.name}</TableCell>
-                    <TableCell className="font-mono text-sm">{server.url}</TableCell>
+                    <TableCell className="font-medium text-info">{server.name}</TableCell>
+                    <TableCell className="font-mono text-sm text-code">{server.url}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {getStatusIcon(server.status)}

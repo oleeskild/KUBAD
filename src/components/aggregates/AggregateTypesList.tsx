@@ -100,7 +100,7 @@ export function AggregateTypesList({
     <div className="p-4 h-full overflow-hidden">
       <div className="space-y-4 h-full flex flex-col">
         <div>
-          <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent flex items-center gap-3 mb-4">
+          <h3 className="text-xl font-bold text-keyword flex items-center gap-3 mb-4">
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 rounded-xl blur-md"></div>
               <div className="relative bg-gradient-to-br from-primary to-primary/90 p-2 rounded-xl shadow-lg">
@@ -137,7 +137,7 @@ export function AggregateTypesList({
           {userAggregates.length === 0 ? (
             <div className="text-center py-6 text-muted-foreground">
               <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No aggregates added yet</p>
+              <p className="text-sm text-muted-readable">No aggregates added yet</p>
             </div>
           ) : (
             userAggregates.map((aggregateType, index) => {
@@ -161,10 +161,10 @@ export function AggregateTypesList({
                 >
                   <div className="flex items-center justify-between">
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-medium text-sm truncate">
+                      <h4 className="font-medium text-sm truncate text-info">
                         {aggregateType}
                       </h4>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-number">
                         {instances.length} instance
                         {instances.length !== 1 ? "s" : ""}
                       </p>
@@ -215,7 +215,7 @@ export function AggregateTypesList({
           {showSuggestions && (
             <div className="mt-4 space-y-3">
               <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">
+                <label className="text-xs font-medium text-subtitle">
                   Scan recent events to discover aggregate types
                 </label>
                 <div className="flex items-center gap-2">
@@ -230,7 +230,7 @@ export function AggregateTypesList({
                     }
                     className="w-20 h-7 text-center text-xs"
                   />
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-readable">
                     events to scan
                   </span>
                   <Button
@@ -245,7 +245,7 @@ export function AggregateTypesList({
                     {streamsLoading ? "Scanning..." : "Apply"}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground/80">
+                <p className="text-xs text-muted-readable">
                   Higher numbers find more aggregate types but take longer to
                   load
                 </p>
@@ -257,7 +257,7 @@ export function AggregateTypesList({
                     <Skeleton key={i} className="h-8 w-full" />
                   ))
                 ) : getSuggestedAggregates().length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-2">
+                  <p className="text-xs text-muted-readable text-center py-2">
                     No new categories found
                   </p>
                 ) : (
@@ -266,7 +266,7 @@ export function AggregateTypesList({
                       key={aggregateType}
                       className="flex items-center justify-between p-2 rounded border border-border bg-muted/50"
                     >
-                      <span className="text-xs font-medium truncate">
+                      <span className="text-xs font-medium truncate text-string">
                         {aggregateType}
                       </span>
                       <Button

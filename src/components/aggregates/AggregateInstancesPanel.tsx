@@ -85,10 +85,10 @@ export function AggregateInstancesPanel({
   if (!selectedAggregate) {
     return (
       <div className="p-4 h-full border-l border-border">
-        <div className="flex items-center justify-center h-full text-muted-foreground">
+        <div className="flex items-center justify-center h-full text-muted-readable">
           <div className="text-center">
             <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Select an aggregate type to view instances</p>
+            <p className="text-subtitle">Select an aggregate type to view instances</p>
           </div>
         </div>
       </div>
@@ -99,7 +99,7 @@ export function AggregateInstancesPanel({
     <div className="p-4 h-full border-l border-border">
       <div className="space-y-4 h-full">
         <div>
-          <h3 className="text-lg font-semibold text-primary mb-2">
+          <h3 className="text-lg font-semibold text-keyword mb-2">
             {selectedAggregate}
           </h3>
           <div className="space-y-1">
@@ -181,7 +181,7 @@ export function AggregateInstancesPanel({
           <div className="flex-1 flex flex-col gap-4 h-full">
             {/* Pinned Instances Section - Takes 70% of space */}
             <div className="flex-1" style={{ flex: "0 0 70%" }}>
-              <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+              <h4 className="text-sm font-medium mb-3 flex items-center gap-2 text-highlight">
                 <Pin className="h-4 w-4 text-primary" />
                 Pinned Instances
               </h4>
@@ -215,7 +215,7 @@ export function AggregateInstancesPanel({
                           <div className="flex items-center justify-between pr-4">
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
-                                <code className="text-xs font-mono bg-background px-1 rounded truncate">
+                                <code className="text-xs font-mono bg-background px-1 rounded truncate text-code">
                                   {instance.guid}
                                 </code>
                                 <Button

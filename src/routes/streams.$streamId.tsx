@@ -12,7 +12,8 @@ export const Route = createFileRoute('/streams/$streamId')({
 })
 
 function StreamDetailsPage() {
-  const { streamId } = Route.useParams()
+  const { streamId: encodedStreamId } = Route.useParams()
+  const streamId = decodeURIComponent(encodedStreamId)
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set())
 
   const { data: events, isLoading, error } = useQuery({

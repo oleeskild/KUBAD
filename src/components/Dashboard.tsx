@@ -67,6 +67,7 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -512,6 +513,8 @@ export function Dashboard({ onLogout }: DashboardProps) {
                   <p>Refresh Data</p>
                 </TooltipContent>
               </Tooltip>
+
+              <ThemeToggle />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

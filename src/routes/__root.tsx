@@ -19,6 +19,7 @@ import {
 import { useState, useEffect } from 'react'
 import { ServerManager } from '@/components/ServerManager'
 import { CommandPalette } from '@/components/CommandPalette'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 import {
   Dialog,
   DialogContent,
@@ -189,6 +190,9 @@ export const Route = createRootRoute({
                   <span className="text-xs">⌘</span>K
                 </kbd>
               </Button>
+              
+              {/* Theme Toggle */}
+              <ThemeToggle />
               
               {/* Current Server Indicator */}
               {currentServer && (

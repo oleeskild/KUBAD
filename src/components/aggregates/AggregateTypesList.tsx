@@ -73,9 +73,18 @@ export function AggregateTypesList({
 
     const suggestedTypes = new Set<string>();
     streams.forEach((stream) => {
-      const match = stream.streamId.match(/^([^-]+)-[a-f0-9-]{36}$/i);
+      // Extract aggregate type from streamId pattern: "Prefix.AggregateType-guid"
+      const match = stream.streamId.match(/^(.+?)-[a-f0-9-]{36}$/i);
       if (match) {
-        suggestedTypes.add(match[1]);
+        let aggregateType = match[1];
+
+        // Handle patterns like "Organization.MyStream" -> "Mystream"
+        if (aggregateType.includes(".")) {
+          const parts = aggregateType.split(".");
+          aggregateType = parts[parts.length - 1]; // Take the last part
+        }
+
+        suggestedTypes.add(aggregateType);
       }
     });
 
@@ -137,7 +146,9 @@ export function AggregateTypesList({
           {userAggregates.length === 0 ? (
             <div className="text-center py-6 text-muted-foreground">
               <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm text-muted-readable">No aggregates added yet</p>
+              <p className="text-sm text-muted-readable">
+                No aggregates added yet
+              </p>
             </div>
           ) : (
             userAggregates.map((aggregateType, index) => {
@@ -207,9 +218,7 @@ export function AggregateTypesList({
             className="w-full cursor-pointer"
           >
             <Lightbulb className="h-4 w-4 mr-2" />
-            {showSuggestions
-              ? "Hide Recent Streams"
-              : "Load recent streams into categories"}
+            {showSuggestions ? "Hide Recent Streams" : "Load recent streams"}
           </Button>
 
           {showSuggestions && (

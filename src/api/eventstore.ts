@@ -322,10 +322,10 @@ export const auth = {
 }
 
 export const streams = {
-  list: async (page = 0, limit = 20, scanCount = 500): Promise<Stream[]> => {
+  list: async (page = 0, limit = 20, scanCount = 50): Promise<Stream[]> => {
     try {
-      // Use /streams/$all/head/{scanCount} to get latest events with rich embed
-      const response = await eventstoreApi.get(`/streams/$all/head/${scanCount}?embed=rich`, {
+      // Use /streams/$streams/head/{scanCount} to get recent stream instances
+      const response = await eventstoreApi.get(`/streams/$streams/head/${scanCount}?embed=rich`, {
         headers: {
           Accept: 'application/json',
         },
@@ -334,36 +334,24 @@ export const streams = {
       const streamMap = new Map();
       const entries = response.data.entries || [];
       
-      // Extract unique streams from $all events
+      // Extract streams from $streams events - each entry represents a new stream instance
       entries.forEach((entry: any) => {
-        // Extract stream name from the title format: "eventNumber@streamName"
-        const title = entry.title || '';
-        const titleParts = title.split('@');
+        const streamId = entry.streamId;
         
-        if (titleParts.length >= 2) {
-          const streamId = titleParts[1];
-          
-          // Skip system streams (starting with $) but keep user streams
-          if (streamId && !streamId.startsWith('$') && !streamMap.has(streamId)) {
-            // Try to extract event number for counting
-            const eventNumber = parseInt(titleParts[0]) || 0;
-            
-            const existing = streamMap.get(streamId);
-            const maxEventNumber = existing ? Math.max(existing.eventCount, eventNumber + 1) : eventNumber + 1;
-            
-            streamMap.set(streamId, {
-              streamId: streamId,
-              eventCount: maxEventNumber,
-              created: entry.updated || new Date().toISOString(),
-              lastUpdated: entry.updated || new Date().toISOString(),
-            });
-          }
+        // Skip system streams (starting with $) but keep user streams
+        if (streamId && !streamId.startsWith('$') && !streamMap.has(streamId)) {
+          streamMap.set(streamId, {
+            streamId: streamId,
+            eventCount: entry.eventNumber + 1, // eventNumber is 0-based, so add 1 for count
+            created: entry.updated || new Date().toISOString(),
+            lastUpdated: entry.updated || new Date().toISOString(),
+          });
         }
       });
       
       return Array.from(streamMap.values()).slice(page * limit, (page + 1) * limit);
     } catch (error) {
-      console.error('Error fetching streams from $all:', error);
+      console.error('Error fetching streams from $streams:', error);
       return [];
     }
   },

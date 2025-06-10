@@ -54,6 +54,12 @@ function AggregatesPage() {
   const [jsonPathFilter, setJsonPathFilter] = useState("");
   const [filteredEventData, setFilteredEventData] = useState<Map<string, any>>(new Map());
   const [showSuggestions, setShowSuggestions] = useState(false);
+  
+  // Event display mode setting (global, saved in browser)
+  const [isFullEventDisplay, setIsFullEventDisplay] = useState<boolean>(() => {
+    const saved = localStorage.getItem("eventstore-full-event-display");
+    return saved ? JSON.parse(saved) : false;
+  });
 
   // User aggregates state
   const [userAggregates, setUserAggregates] = useState<string[]>(() => {
@@ -218,6 +224,13 @@ function AggregatesPage() {
       : "eventstore-pinned-streams";
     localStorage.setItem(serverKey, JSON.stringify(streams));
     setPinnedStreams(streams);
+  };
+
+  // Save event display mode to localStorage
+  const toggleEventDisplayMode = () => {
+    const newMode = !isFullEventDisplay;
+    setIsFullEventDisplay(newMode);
+    localStorage.setItem("eventstore-full-event-display", JSON.stringify(newMode));
   };
 
   // Pin/unpin stream functionality
@@ -545,10 +558,12 @@ function AggregatesPage() {
               isExpandingAll={isExpandingAll}
               pinnedStreams={pinnedStreams}
               jsonPathFilter={jsonPathFilter}
+              isFullEventDisplay={isFullEventDisplay}
               onJsonPathFilterChange={setJsonPathFilter}
               onToggleEvent={toggleEvent}
               onExpandAll={handleExpandAll}
               onTogglePinStream={togglePinStream}
+              onToggleEventDisplayMode={toggleEventDisplayMode}
               onFilterFocusChange={(focused) => setNavigationState(prev => ({ ...prev, isFilterFocused: focused }))}
             />
           </ResizablePanel>

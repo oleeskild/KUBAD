@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Package, Plus, Trash2, Lightbulb } from "lucide-react";
+import { Package, Plus, Trash2 } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -38,16 +38,22 @@ export function AggregateTypesList({
   getAggregatesByType,
 }: AggregateTypesListProps) {
   const [newAggregateName, setNewAggregateName] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [pendingScanCount, setPendingScanCount] = useState(eventScanCount);
   const selectedItemRef = useRef<HTMLDivElement>(null);
 
-  // Queries
+  // Auto-load streams on mount
   const { data: streams, isLoading: streamsLoading } = useQuery({
     queryKey: ["streams", eventScanCount],
     queryFn: () => streamsApi.list(0, 20, eventScanCount),
-    enabled: showSuggestions,
+    enabled: true, // Always enabled to auto-load
   });
+
+  // Auto-load 200 streams on component mount
+  useEffect(() => {
+    if (eventScanCount !== 200) {
+      onEventScanCountChange(200);
+    }
+  }, []);
 
   // Add new user aggregate
   const addUserAggregate = (aggregateName: string) => {
@@ -210,88 +216,69 @@ export function AggregateTypesList({
 
         <Separator />
 
-        <div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowSuggestions(!showSuggestions)}
-            className="w-full cursor-pointer"
-          >
-            <Lightbulb className="h-4 w-4 mr-2" />
-            {showSuggestions ? "Hide Recent Streams" : "Load recent streams"}
-          </Button>
-
-          {showSuggestions && (
-            <div className="mt-4 space-y-3">
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-subtitle">
-                  Scan recent events to discover aggregate types
-                </label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    min="50"
-                    max="2000"
-                    step="50"
-                    value={pendingScanCount}
-                    onChange={(e) =>
-                      setPendingScanCount(parseInt(e.target.value) || 200)
-                    }
-                    className="w-20 h-7 text-center text-xs"
-                  />
-                  <span className="text-xs text-muted-readable">
-                    events to scan
+        {/* Suggested Aggregates - always visible */}
+        <div className="space-y-3">
+          <div className="space-y-2 max-h-32 overflow-y-auto">
+            {streamsLoading ? (
+              [...Array(2)].map((_, i) => (
+                <Skeleton key={i} className="h-8 w-full" />
+              ))
+            ) : getSuggestedAggregates().length === 0 ? (
+              <p className="text-xs text-muted-readable text-center py-2">
+                No new categories found
+              </p>
+            ) : (
+              getSuggestedAggregates().map((aggregateType) => (
+                <div
+                  key={aggregateType}
+                  className="flex items-center justify-between p-2 rounded border border-border bg-muted/50"
+                >
+                  <span className="text-xs font-medium truncate text-string">
+                    {aggregateType}
                   </span>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    onClick={() => onEventScanCountChange(pendingScanCount)}
-                    disabled={
-                      eventScanCount === pendingScanCount || streamsLoading
-                    }
-                    className="h-7 px-2 text-xs cursor-pointer"
+                    onClick={() => addUserAggregate(aggregateType)}
+                    className="h-6 w-6 p-0 cursor-pointer"
                   >
-                    {streamsLoading ? "Scanning..." : "Apply"}
+                    <Plus className="h-3 w-3" />
                   </Button>
                 </div>
-                <p className="text-xs text-muted-readable">
-                  Higher numbers find more aggregate types but take longer to
-                  load
-                </p>
-              </div>
+              ))
+            )}
+          </div>
 
-              <div className="space-y-2 max-h-32 overflow-y-auto">
-                {streamsLoading ? (
-                  [...Array(2)].map((_, i) => (
-                    <Skeleton key={i} className="h-8 w-full" />
-                  ))
-                ) : getSuggestedAggregates().length === 0 ? (
-                  <p className="text-xs text-muted-readable text-center py-2">
-                    No new categories found
-                  </p>
-                ) : (
-                  getSuggestedAggregates().map((aggregateType) => (
-                    <div
-                      key={aggregateType}
-                      className="flex items-center justify-between p-2 rounded border border-border bg-muted/50"
-                    >
-                      <span className="text-xs font-medium truncate text-string">
-                        {aggregateType}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => addUserAggregate(aggregateType)}
-                        className="h-6 w-6 p-0 cursor-pointer"
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))
-                )}
-              </div>
+          {/* Simple scan count controls at bottom */}
+          <div className="space-y-2 pt-2 border-t border-border">
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min="50"
+                max="2000"
+                step="50"
+                value={pendingScanCount}
+                onChange={(e) =>
+                  setPendingScanCount(parseInt(e.target.value) || 200)
+                }
+                className="w-20 h-7 text-center text-xs"
+              />
+              <span className="text-xs text-muted-readable flex-1">
+                streams
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onEventScanCountChange(pendingScanCount)}
+                disabled={
+                  eventScanCount === pendingScanCount || streamsLoading
+                }
+                className="h-7 px-2 text-xs cursor-pointer"
+              >
+                {streamsLoading ? "Loading..." : "Load"}
+              </Button>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

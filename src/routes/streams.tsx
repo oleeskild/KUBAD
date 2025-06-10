@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChevronLeft, ChevronRight, Search, ArrowLeft, ChevronDown } from 'lucide-react'
-import { Link, useRouter } from '@tanstack/react-router'
+import { useRouter } from '@tanstack/react-router'
 
 type StreamsSearch = {
   streamId?: string

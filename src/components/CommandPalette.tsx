@@ -17,10 +17,14 @@ import {
   Server,
   Search,
   LogOut,
-  ArrowRight
+  ArrowRight,
+  Sun,
+  Moon,
+  Monitor
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { auth, serverManager } from '@/api/eventstore'
+import { useTheme } from '@/contexts/ThemeContext'
 
 interface Command {
   id: string
@@ -41,6 +45,10 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const router = useRouter()
   const [search, setSearch] = useState('')
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const { setTheme } = useTheme()
+
+  // Check if the search input looks like a stream ID (contains GUID pattern)
+  const isStreamId = search && search.match(/^(.+?)-[a-f0-9-]{36}$/i)
 
   const commands: Command[] = [
     // Navigation
@@ -112,6 +120,33 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     },
     // Actions
     {
+      id: 'theme-light',
+      label: 'Light Theme',
+      description: 'Switch to light theme',
+      icon: <Sun className="h-4 w-4" />,
+      action: () => setTheme('light'),
+      keywords: ['theme', 'light', 'appearance'],
+      group: 'Theme'
+    },
+    {
+      id: 'theme-dark',
+      label: 'Dark Theme',
+      description: 'Switch to dark theme',
+      icon: <Moon className="h-4 w-4" />,
+      action: () => setTheme('dark'),
+      keywords: ['theme', 'dark', 'appearance'],
+      group: 'Theme'
+    },
+    {
+      id: 'theme-system',
+      label: 'System Theme',
+      description: 'Use system theme preference',
+      icon: <Monitor className="h-4 w-4" />,
+      action: () => setTheme('system'),
+      keywords: ['theme', 'system', 'auto', 'appearance'],
+      group: 'Theme'
+    },
+    {
       id: 'logout',
       label: 'Logout',
       description: 'Sign out of the application',
@@ -145,6 +180,29 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   }))
 
   const allCommands = [...commands, ...serverCommands]
+
+  // If search looks like a stream ID, add a special command to navigate to it
+  if (isStreamId) {
+    const [aggregateType, guid] = [isStreamId[1], search.substring(isStreamId[1].length + 1)]
+    allCommands.unshift({
+      id: 'go-to-stream',
+      label: `Go to stream: ${search}`,
+      description: `Navigate to aggregate ${aggregateType} with GUID ${guid}`,
+      icon: <ArrowRight className="h-4 w-4" />,
+      action: () => {
+        router.navigate({ 
+          to: '/aggregates',
+          search: { 
+            aggregate: aggregateType,
+            guid: guid,
+            stream: search
+          }
+        })
+      },
+      keywords: [],
+      group: 'Quick Navigation'
+    })
+  }
 
   const filteredCommands = search
     ? allCommands.filter(command =>
@@ -222,7 +280,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         <div className="flex items-center border-b px-3">
           <Search className="h-4 w-4 mr-3 text-muted-foreground" />
           <Input
-            placeholder="Search for commands..."
+            placeholder="Search for commands or paste aggregate ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="border-0 bg-transparent placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"

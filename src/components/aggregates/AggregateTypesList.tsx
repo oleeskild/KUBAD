@@ -82,13 +82,7 @@ export function AggregateTypesList({
       // Extract aggregate type from streamId pattern: "Prefix.AggregateType-guid"
       const match = stream.streamId.match(/^(.+?)-[a-f0-9-]{36}$/i);
       if (match) {
-        let aggregateType = match[1];
-
-        // Handle patterns like "Organization.MyStream" -> "Mystream"
-        if (aggregateType.includes(".")) {
-          const parts = aggregateType.split(".");
-          aggregateType = parts[parts.length - 1]; // Take the last part
-        }
+        const aggregateType = match[1]; // Keep the full name including dots
 
         suggestedTypes.add(aggregateType);
       }

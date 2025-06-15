@@ -17,6 +17,7 @@ interface UseKeyboardNavigationProps {
   onExpandAll: () => void;
   onTogglePinStream: (streamId: string) => void;
   onShowSuggestionsToggle: () => void;
+  onToggleFullscreen?: () => void;
   getPinnedAggregateInstances: (aggregateType: string) => AggregateInstance[];
   guidInputRef: React.RefObject<HTMLInputElement | null>;
 }
@@ -36,6 +37,7 @@ export function useKeyboardNavigation({
   onExpandAll,
   onTogglePinStream,
   onShowSuggestionsToggle,
+  onToggleFullscreen,
   getPinnedAggregateInstances,
   guidInputRef,
 }: UseKeyboardNavigationProps) {
@@ -181,6 +183,11 @@ export function useKeyboardNavigation({
       e.preventDefault();
       if (selectedStream) {
         onTogglePinStream(selectedStream);
+      }
+    } else if (e.key === "f") {
+      e.preventDefault();
+      if (onToggleFullscreen) {
+        onToggleFullscreen();
       }
     }
   };

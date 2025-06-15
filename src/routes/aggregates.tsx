@@ -259,6 +259,7 @@ function AggregatesPage() {
     onExpandAll: wrappedHandleExpandAll,
     onTogglePinStream: togglePinStream,
     onShowSuggestionsToggle: () => setShowSuggestions(!showSuggestions),
+    onToggleFullscreen: toggleEventsFullscreen,
     getPinnedAggregateInstances: (aggregateType) => getPinnedAggregateInstances(aggregateType, pinnedStreams),
     guidInputRef,
   });

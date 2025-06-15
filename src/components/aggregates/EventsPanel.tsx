@@ -14,6 +14,8 @@ import {
   Minimize2,
   Expand,
   Shrink,
+  ChevronsDown,
+  ChevronsUp,
 } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow, solarizedlight } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -31,11 +33,13 @@ interface EventsPanelProps {
   pinnedStreams: string[];
   jsonPathFilter: string;
   isFullEventDisplay: boolean;
+  isFullscreen?: boolean;
   onJsonPathFilterChange: (filter: string) => void;
   onToggleEvent: (event: Event) => void;
   onExpandAll: () => void;
   onTogglePinStream: (streamId: string) => void;
   onToggleEventDisplayMode: () => void;
+  onToggleFullscreen?: () => void;
   onFilterFocusChange: (focused: boolean) => void;
 }
 
@@ -52,11 +56,13 @@ export function EventsPanel({
   pinnedStreams,
   jsonPathFilter,
   isFullEventDisplay,
+  isFullscreen = false,
   onJsonPathFilterChange,
   onToggleEvent,
   onExpandAll,
   onTogglePinStream,
   onToggleEventDisplayMode,
+  onToggleFullscreen,
   onFilterFocusChange,
 }: EventsPanelProps) {
   const selectedItemRef = useRef<HTMLDivElement>(null);
@@ -75,7 +81,7 @@ export function EventsPanel({
 
   if (!selectedStream) {
     return (
-      <div className="p-4 h-full border-l border-border">
+      <div className={cn("p-4 h-full", !isFullscreen && "border-l border-border")}>
         <div className="flex items-center justify-center h-full text-muted-readable">
           <div className="text-center">
             <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -87,14 +93,43 @@ export function EventsPanel({
   }
 
   return (
-    <div className="p-4 h-full border-l border-border flex flex-col">
+    <div className={cn("p-4 h-full flex flex-col", !isFullscreen && "border-l border-border")}>
       <div className="flex-shrink-0 space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-keyword">Events</h3>
             <p className="text-sm text-code">{selectedStream}</p>
+            {isFullscreen && (
+              <p className="text-xs text-muted-foreground mt-1">Press ESC to exit fullscreen</p>
+            )}
           </div>
           <div className="flex items-center gap-2">
+            {/* Fullscreen toggle */}
+            {onToggleFullscreen && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onToggleFullscreen}
+                className={cn(
+                  "flex items-center gap-2 transition-all duration-300",
+                  isFullscreen
+                    ? "border-primary text-primary bg-primary/10 hover:bg-primary/20"
+                    : "border-muted-foreground/30 text-muted-foreground hover:border-primary hover:text-primary"
+                )}
+              >
+                {isFullscreen ? (
+                  <>
+                    <Minimize2 className="h-3 w-3" />
+                    <span className="text-xs font-medium">Exit</span>
+                  </>
+                ) : (
+                  <>
+                    <Maximize2 className="h-3 w-3" />
+                    <span className="text-xs font-medium">Fullscreen</span>
+                  </>
+                )}
+              </Button>
+            )}
             {/* Event display mode toggle */}
             <Button
               variant="outline"
@@ -162,12 +197,12 @@ export function EventsPanel({
                     expandedEvents.has(`${selectedStream}-${event.eventNumber}`)
                   ) ? (
                   <div className="flex items-center space-x-2">
-                    <Minimize2 className="h-3 w-3 group-hover:scale-110 transition-transform" />
+                    <ChevronsUp className="h-3 w-3 group-hover:scale-110 transition-transform" />
                     <span className="text-xs font-medium">Collapse All</span>
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">
-                    <Maximize2 className="h-3 w-3 group-hover:scale-110 transition-transform" />
+                    <ChevronsDown className="h-3 w-3 group-hover:scale-110 transition-transform" />
                     <span className="text-xs font-medium">Expand All</span>
                   </div>
                 )}

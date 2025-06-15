@@ -88,6 +88,9 @@ function AggregatesPage() {
     isFilterFocused: false,
   });
 
+  // Fullscreen state
+  const [isEventsFullscreen, setIsEventsFullscreen] = useState(false);
+
   // Update URL helper
   const updateURL = (
     newAggregate?: string | null,
@@ -223,6 +226,23 @@ function AggregatesPage() {
     toggleEvent(event, selectedStream);
   };
 
+  // Fullscreen toggle handlers
+  const toggleEventsFullscreen = () => {
+    setIsEventsFullscreen(!isEventsFullscreen);
+  };
+
+  // Keyboard shortcut for fullscreen (ESC to exit)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isEventsFullscreen) {
+        setIsEventsFullscreen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isEventsFullscreen]);
+
   // Use keyboard navigation hook
   useKeyboardNavigation({
     navigationState,
@@ -248,52 +268,9 @@ function AggregatesPage() {
       <div className="flex flex-col h-full p-6">
         <AggregatesPageHeader />
 
-        <ResizablePanelGroup
-          direction="horizontal"
-          className="flex-1 border-2 border-primary/20 bg-gradient-to-br from-card via-background/50 to-card rounded-3xl shadow-2xl backdrop-blur-sm overflow-hidden"
-        >
-          {/* Column 1: Aggregate Types */}
-          <ResizablePanel defaultSize={20} minSize={20}>
-            <AggregateTypesList
-              userAggregates={userAggregates}
-              onAggregatesChange={saveUserAggregates}
-              selectedAggregate={selectedAggregate}
-              onAggregateSelect={wrappedHandleAggregateSelect}
-              selectedAggregateIndex={navigationState.selectedAggregateIndex}
-              isActiveColumn={navigationState.activeColumn === "aggregates"}
-              eventScanCount={eventScanCount}
-              onEventScanCountChange={setEventScanCount}
-            />
-          </ResizablePanel>
-
-          <ResizableHandle withHandle />
-
-          {/* Column 2: Recent Instances or GUID Input */}
-          <ResizablePanel defaultSize={25} minSize={25}>
-            <AggregateInstancesPanel
-              selectedAggregate={selectedAggregate}
-              aggregateGuid={aggregateGuid}
-              onAggregateGuidChange={setAggregateGuid}
-              onAggregateSelect={wrappedHandleAggregateSelect}
-              selectedAggregateInstances={selectedAggregateInstances}
-              isLoadingInstances={isLoadingInstances}
-              pinnedStreams={pinnedStreams}
-              onTogglePinStream={togglePinStream}
-              onInstanceSelect={handleInstanceSelect}
-              onCopyToClipboard={handleCopyToClipboard}
-              selectedStream={selectedStream}
-              selectedInstanceIndex={navigationState.selectedInstanceIndex}
-              isActiveColumn={navigationState.activeColumn === "instances"}
-              getPinnedAggregateInstances={(aggregateType) => getPinnedAggregateInstances(aggregateType, pinnedStreams)}
-              updateURL={updateURL}
-              guidInputRef={guidInputRef}
-            />
-          </ResizablePanel>
-
-          <ResizableHandle withHandle />
-
-          {/* Column 3: Events */}
-          <ResizablePanel defaultSize={55} minSize={25}>
+        {/* Fullscreen Events Panel */}
+        {isEventsFullscreen ? (
+          <div className="fixed inset-0 z-50 bg-background">
             <EventsPanel
               selectedStream={selectedStream}
               events={events}
@@ -307,15 +284,88 @@ function AggregatesPage() {
               pinnedStreams={pinnedStreams}
               jsonPathFilter={jsonPathFilter}
               isFullEventDisplay={isFullEventDisplay}
+              isFullscreen={isEventsFullscreen}
               onJsonPathFilterChange={setJsonPathFilter}
               onToggleEvent={wrappedToggleEvent}
               onExpandAll={wrappedHandleExpandAll}
               onTogglePinStream={togglePinStream}
               onToggleEventDisplayMode={toggleEventDisplayMode}
+              onToggleFullscreen={toggleEventsFullscreen}
               onFilterFocusChange={(focused) => setNavigationState(prev => ({ ...prev, isFilterFocused: focused }))}
             />
-          </ResizablePanel>
-        </ResizablePanelGroup>
+          </div>
+        ) : (
+          <ResizablePanelGroup
+            direction="horizontal"
+            className="flex-1 border-2 border-primary/20 bg-gradient-to-br from-card via-background/50 to-card rounded-3xl shadow-2xl backdrop-blur-sm overflow-hidden"
+          >
+            {/* Column 1: Aggregate Types */}
+            <ResizablePanel defaultSize={20} minSize={20}>
+              <AggregateTypesList
+                userAggregates={userAggregates}
+                onAggregatesChange={saveUserAggregates}
+                selectedAggregate={selectedAggregate}
+                onAggregateSelect={wrappedHandleAggregateSelect}
+                selectedAggregateIndex={navigationState.selectedAggregateIndex}
+                isActiveColumn={navigationState.activeColumn === "aggregates"}
+                eventScanCount={eventScanCount}
+                onEventScanCountChange={setEventScanCount}
+              />
+            </ResizablePanel>
+
+            <ResizableHandle withHandle />
+
+            {/* Column 2: Recent Instances or GUID Input */}
+            <ResizablePanel defaultSize={25} minSize={25}>
+              <AggregateInstancesPanel
+                selectedAggregate={selectedAggregate}
+                aggregateGuid={aggregateGuid}
+                onAggregateGuidChange={setAggregateGuid}
+                onAggregateSelect={wrappedHandleAggregateSelect}
+                selectedAggregateInstances={selectedAggregateInstances}
+                isLoadingInstances={isLoadingInstances}
+                pinnedStreams={pinnedStreams}
+                onTogglePinStream={togglePinStream}
+                onInstanceSelect={handleInstanceSelect}
+                onCopyToClipboard={handleCopyToClipboard}
+                selectedStream={selectedStream}
+                selectedInstanceIndex={navigationState.selectedInstanceIndex}
+                isActiveColumn={navigationState.activeColumn === "instances"}
+                getPinnedAggregateInstances={(aggregateType) => getPinnedAggregateInstances(aggregateType, pinnedStreams)}
+                updateURL={updateURL}
+                guidInputRef={guidInputRef}
+              />
+            </ResizablePanel>
+
+            <ResizableHandle withHandle />
+
+            {/* Column 3: Events */}
+            <ResizablePanel defaultSize={55} minSize={25}>
+              <EventsPanel
+                selectedStream={selectedStream}
+                events={events}
+                expandedEvents={expandedEvents}
+                eventData={eventData}
+                filteredEventData={filteredEventData}
+                loadingEvents={loadingEvents}
+                selectedEventIndex={navigationState.selectedEventIndex}
+                isActiveColumn={navigationState.activeColumn === "events"}
+                isExpandingAll={isExpandingAll}
+                pinnedStreams={pinnedStreams}
+                jsonPathFilter={jsonPathFilter}
+                isFullEventDisplay={isFullEventDisplay}
+                isFullscreen={isEventsFullscreen}
+                onJsonPathFilterChange={setJsonPathFilter}
+                onToggleEvent={wrappedToggleEvent}
+                onExpandAll={wrappedHandleExpandAll}
+                onTogglePinStream={togglePinStream}
+                onToggleEventDisplayMode={toggleEventDisplayMode}
+                onToggleFullscreen={toggleEventsFullscreen}
+                onFilterFocusChange={(focused) => setNavigationState(prev => ({ ...prev, isFilterFocused: focused }))}
+              />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        )}
 
         {/* Toast Notification */}
         <ToastNotification 

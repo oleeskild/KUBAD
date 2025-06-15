@@ -219,7 +219,10 @@ export function useKeyboardNavigation({
       if (e.key === "h" || e.key === "ArrowLeft") {
         e.preventDefault();
         if (activeColumn === "events") {
-          onNavigationChange({ activeColumn: "instances" });
+          onNavigationChange({ 
+            activeColumn: "instances",
+            selectedInstanceIndex: 0 // Start at first instance, not GUID input
+          });
         } else if (activeColumn === "instances") {
           onNavigationChange({ activeColumn: "aggregates" });
         }
@@ -229,7 +232,10 @@ export function useKeyboardNavigation({
       if (e.key === "l" || e.key === "ArrowRight") {
         e.preventDefault();
         if (activeColumn === "aggregates" && selectedAggregate) {
-          onNavigationChange({ activeColumn: "instances" });
+          onNavigationChange({ 
+            activeColumn: "instances",
+            selectedInstanceIndex: 0 // Start at first instance, not GUID input
+          });
         } else if (activeColumn === "instances" && selectedStream) {
           onNavigationChange({ activeColumn: "events" });
         }

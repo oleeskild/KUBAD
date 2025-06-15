@@ -108,9 +108,9 @@ function AggregatesPage() {
 
   // Use aggregate operations hook
   const {
-    streams,
+    streams: _streams,
     guidInputRef,
-    getAggregatesByType,
+    getAggregatesByType: _getAggregatesByType,
     getPinnedAggregateInstances,
     handleAggregateSelect,
     handleInstanceSelect,

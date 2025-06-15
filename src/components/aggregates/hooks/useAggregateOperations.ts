@@ -89,7 +89,7 @@ export function useAggregateOperations({
   const handleAggregateSelect = async (
     aggregateType: string,
     guid?: string,
-    navigationState?: any,
+    _navigationState?: any,
     setNavigationState?: any
   ) => {
     setSelectedAggregate(aggregateType);

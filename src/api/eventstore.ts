@@ -356,6 +356,53 @@ export const streams = {
     }
   },
 
+  getRecentAggregateInstances: async (aggregateType: string, limit = 20): Promise<{ streamId: string; eventCount: number; created: string; lastUpdated: string; guid: string; aggregateType: string; }[]> => {
+    try {
+      // Use $ce-{aggregateType} endpoint to get recent aggregate instances
+      const response = await eventstoreApi.get(`/streams/$ce-${aggregateType}?embed=tryharder&count=${limit}&direction=backward`, {
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+      
+      const entries = response.data.entries || [];
+      const aggregateInstances = new Map();
+      
+      // Extract aggregate IDs from the events
+      entries.forEach((entry: any) => {
+        try {
+          // Parse the streamId to extract the aggregate GUID
+          const streamIdFromEvent = entry.streamId;
+          if (streamIdFromEvent && streamIdFromEvent.startsWith(`${aggregateType}-`)) {
+            const guidMatch = streamIdFromEvent.match(/-([a-f0-9-]{36})$/i);
+            if (guidMatch) {
+              const guid = guidMatch[1];
+              
+              // Only add if we haven't seen this aggregate instance yet
+              if (!aggregateInstances.has(guid)) {
+                aggregateInstances.set(guid, {
+                  streamId: streamIdFromEvent,
+                  eventCount: (entry.eventNumber || 0) + 1, // eventNumber is 0-based
+                  created: entry.updated || new Date().toISOString(),
+                  lastUpdated: entry.updated || new Date().toISOString(),
+                  guid: guid,
+                  aggregateType: aggregateType,
+                });
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('Error parsing entry from $ce stream:', error, entry);
+        }
+      });
+      
+      return Array.from(aggregateInstances.values());
+    } catch (error) {
+      console.error(`Error fetching recent aggregate instances for ${aggregateType} from $ce stream:`, error);
+      return [];
+    }
+  },
+
   get: async (streamId: string): Promise<Event[]> => {
     try {
       // Fetch events from specific stream

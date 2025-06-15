@@ -12,7 +12,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { AggregateInstance } from "./types";
 
 interface AggregateTypesListProps {
   userAggregates: string[];
@@ -23,7 +22,6 @@ interface AggregateTypesListProps {
   isActiveColumn: boolean;
   eventScanCount: number;
   onEventScanCountChange: (count: number) => void;
-  getAggregatesByType: (type: string) => AggregateInstance[];
 }
 
 export function AggregateTypesList({
@@ -35,7 +33,6 @@ export function AggregateTypesList({
   isActiveColumn,
   eventScanCount,
   onEventScanCountChange,
-  getAggregatesByType,
 }: AggregateTypesListProps) {
   const [newAggregateName, setNewAggregateName] = useState("");
   const [pendingScanCount, setPendingScanCount] = useState(eventScanCount);
@@ -152,7 +149,6 @@ export function AggregateTypesList({
             </div>
           ) : (
             userAggregates.map((aggregateType, index) => {
-              const instances = getAggregatesByType(aggregateType);
               const isSelected = selectedAggregate === aggregateType;
               const isKeyboardSelected =
                 isActiveColumn && selectedAggregateIndex === index;
@@ -175,10 +171,6 @@ export function AggregateTypesList({
                       <h4 className="font-medium text-sm truncate text-info">
                         {aggregateType}
                       </h4>
-                      <p className="text-xs text-number">
-                        {instances.length} instance
-                        {instances.length !== 1 ? "s" : ""}
-                      </p>
                     </div>
                     <Tooltip>
                       <TooltipTrigger asChild>

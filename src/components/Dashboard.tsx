@@ -318,18 +318,25 @@ export function Dashboard({ onLogout }: DashboardProps) {
       // Load recent instances for this aggregate type
       setIsLoadingInstances(true);
       try {
-        // Get all instances of this aggregate type
-        const instances = getAggregatesByType(aggregateType);
-        // Sort by most recent and take top 20
-        const sortedInstances = instances
-          .sort(
-            (a, b) =>
-              new Date(b.created).getTime() - new Date(a.created).getTime()
-          )
-          .slice(0, 20);
-        setSelectedAggregateInstances(sortedInstances);
+        // Use the new $ce-{aggregateType} endpoint to fetch recent aggregate instances
+        const instances = await streamsApi.getRecentAggregateInstances(aggregateType, 20);
+        setSelectedAggregateInstances(instances);
       } catch (error) {
         console.error("Error loading aggregate instances:", error);
+        // Fallback to the old method if the new one fails
+        try {
+          const instances = getAggregatesByType(aggregateType);
+          const sortedInstances = instances
+            .sort(
+              (a, b) =>
+                new Date(b.created).getTime() - new Date(a.created).getTime()
+            )
+            .slice(0, 20);
+          setSelectedAggregateInstances(sortedInstances);
+        } catch (fallbackError) {
+          console.error("Fallback method also failed:", fallbackError);
+          setSelectedAggregateInstances([]);
+        }
       } finally {
         setIsLoadingInstances(false);
       }

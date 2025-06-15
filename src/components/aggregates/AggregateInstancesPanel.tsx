@@ -5,6 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Package,
   Search,
   Copy,
@@ -134,39 +139,52 @@ export function AggregateInstancesPanel({
                   }
                 }}
               />
-              <Button
-                onClick={() => {
-                  if (aggregateGuid.trim()) {
-                    onAggregateSelect(selectedAggregate, aggregateGuid.trim());
-                  }
-                }}
-                disabled={
-                  !aggregateGuid.trim() ||
-                  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-                    aggregateGuid.trim()
-                  )
-                }
-                size="sm"
-                className={cn(
-                  "transition-all duration-300 cursor-pointer",
-                  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-                    aggregateGuid.trim()
-                  )
-                    ? "bg-green-500 hover:bg-green-600 text-white"
-                    : "bg-primary hover:bg-primary/90"
-                )}
-              >
-                {/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-                  aggregateGuid.trim()
-                ) ? (
-                  <div className="flex items-center space-x-1">
-                    <div className="h-2 w-2 bg-white rounded-full animate-pulse"></div>
-                    <span className="text-xs font-medium">Auto</span>
-                  </div>
-                ) : (
-                  <ArrowRight className="h-4 w-4" />
-                )}
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={() => {
+                      if (aggregateGuid.trim()) {
+                        onAggregateSelect(selectedAggregate, aggregateGuid.trim());
+                      }
+                    }}
+                    disabled={
+                      !aggregateGuid.trim() ||
+                      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+                        aggregateGuid.trim()
+                      )
+                    }
+                    size="sm"
+                    className={cn(
+                      "transition-all duration-300 cursor-pointer",
+                      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+                        aggregateGuid.trim()
+                      )
+                        ? "bg-green-500 hover:bg-green-600 text-white"
+                        : "bg-primary hover:bg-primary/90"
+                    )}
+                  >
+                    {/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+                      aggregateGuid.trim()
+                    ) ? (
+                      <div className="flex items-center space-x-1">
+                        <div className="h-2 w-2 bg-white rounded-full animate-pulse"></div>
+                        <span className="text-xs font-medium">Auto</span>
+                      </div>
+                    ) : (
+                      <ArrowRight className="h-4 w-4" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>
+                    {/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+                      aggregateGuid.trim()
+                    )
+                      ? "Live updating - Events will refresh automatically every 10 seconds"
+                      : "Navigate to aggregate instance"}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
             </div>
             <div className="text-xs text-muted-foreground/70 pt-2 pb-2">
               <kbd className="px-1 py-0.5 bg-muted rounded text-xs mr-1">

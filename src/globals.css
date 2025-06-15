@@ -1,49 +1,49 @@
 @import "tailwindcss";
 
-/* Subtle light theme inspired by Rose Pine Dawn */
+/* Official Rose Pine Dawn light theme */
 :root {
-  --background: 250 244 237; /* #faf4ed - warm cream base */
-  --foreground: 57 53 82; /* #393552 - dark purple-gray */
-  --card: 255 250 243; /* #fffaf3 - lighter cream */
-  --card-foreground: 57 53 82; /* #393552 - dark purple-gray */
-  --popover: 255 250 243; /* #fffaf3 - lighter cream */
-  --popover-foreground: 57 53 82; /* #393552 - dark purple-gray */
-  --primary: 144 122 169; /* #907aa9 - soft purple */
-  --primary-foreground: 250 244 237; /* #faf4ed - warm cream */
-  --secondary: 243 237 230; /* #f3ede6 - very light cream */
-  --secondary-foreground: 57 53 82; /* #393552 - dark purple-gray */
-  --muted: 242 233 222; /* #f2e9de - subtle cream */
-  --muted-foreground: 108 103 133; /* #6c6785 - medium purple-gray */
-  --accent: 180 99 122; /* #b4637a - muted rose */
-  --accent-foreground: 255 250 243; /* #fffaf3 - lighter cream */
-  --destructive: 180 99 122; /* #b4637a - muted rose for errors */
-  --destructive-foreground: 255 250 243; /* #fffaf3 - lighter cream */
-  --border: 232 221 211; /* #e8ddd3 - subtle warm border */
-  --input: 243 237 230; /* #f3ede6 - very light cream */
-  --ring: 144 122 169; /* #907aa9 - soft purple */
+  --background: 250 244 237; /* #faf4ed - base */
+  --foreground: 70 66 97; /* #464261 - text (darker for better readability) */
+  --card: 255 250 243; /* #fffaf3 - surface */
+  --card-foreground: 70 66 97; /* #464261 - text */
+  --popover: 255 250 243; /* #fffaf3 - surface */
+  --popover-foreground: 70 66 97; /* #464261 - text */
+  --primary: 144 122 169; /* #907aa9 - iris */
+  --primary-foreground: 250 244 237; /* #faf4ed - base */
+  --secondary: 242 233 225; /* #f2e9e1 - overlay */
+  --secondary-foreground: 70 66 97; /* #464261 - text */
+  --muted: 242 233 225; /* #f2e9e1 - overlay */
+  --muted-foreground: 121 117 147; /* #797593 - subtle */
+  --accent: 215 130 126; /* #d7827e - rose */
+  --accent-foreground: 70 66 97; /* #464261 - text */
+  --destructive: 180 99 122; /* #b4637a - love */
+  --destructive-foreground: 250 244 237; /* #faf4ed - base */
+  --border: 223 218 217; /* #dfdad9 - highlight_med */
+  --input: 242 233 225; /* #f2e9e1 - overlay */
+  --ring: 144 122 169; /* #907aa9 - iris */
   --radius: 0.5rem;
 }
 
 .dark {
   --background: 25 23 36; /* #191724 - base */
-  --foreground: 250 249 255; /* #faf9ff - much brighter text */
-  --card: 38 35 58; /* #26233a - surface */
-  --card-foreground: 250 249 255; /* #faf9ff - much brighter text */
-  --popover: 38 35 58; /* #26233a - surface */
-  --popover-foreground: 250 249 255; /* #faf9ff - much brighter text */
-  --primary: 144 122 169; /* #907aa9 - iris */
+  --foreground: 224 222 244; /* #e0def4 - text */
+  --card: 38 35 58; /* #26233a - overlay */
+  --card-foreground: 224 222 244; /* #e0def4 - text */
+  --popover: 38 35 58; /* #26233a - overlay */
+  --popover-foreground: 224 222 244; /* #e0def4 - text */
+  --primary: 196 167 231; /* #c4a7e7 - iris */
   --primary-foreground: 25 23 36; /* #191724 - base */
-  --secondary: 49 44 68; /* #312c44 - overlay */
-  --secondary-foreground: 250 249 255; /* #faf9ff - much brighter text */
-  --muted: 49 44 68; /* #312c44 - overlay */
-  --muted-foreground: 200 198 220; /* #c8c6dc - much brighter subtle */
-  --accent: 235 188 186; /* #ebbcba - rose (lighter pink) */
-  --accent-foreground: 250 249 255; /* #faf9ff - much brighter text */
+  --secondary: 31 29 46; /* #1f1d2e - surface */
+  --secondary-foreground: 224 222 244; /* #e0def4 - text */
+  --muted: 31 29 46; /* #1f1d2e - surface */
+  --muted-foreground: 144 140 170; /* #908caa - subtle */
+  --accent: 235 188 186; /* #ebbcba - rose */
+  --accent-foreground: 25 23 36; /* #191724 - base */
   --destructive: 235 111 146; /* #eb6f92 - love */
   --destructive-foreground: 25 23 36; /* #191724 - base */
-  --border: 64 60 86; /* #403c56 - muted */
-  --input: 49 44 68; /* #312c44 - overlay */
-  --ring: 144 122 169; /* #907aa9 - iris */
+  --border: 38 35 58; /* #26233a - overlay */
+  --input: 31 29 46; /* #1f1d2e - surface */
+  --ring: 196 167 231; /* #c4a7e7 - iris */
 }
 
 @theme {
@@ -115,54 +115,54 @@ body {
   outline-offset: 2px;
 }
 
-/* Rose Pine inspired color coding for different text types - darker for better readability */
+/* Official Rose Pine color coding for different text types */
 .text-code {
-  color: rgb(31 80 100); /* #1f5064 - darker pine (deep teal) for code */
+  color: rgb(40 105 131); /* #286983 - pine (dawn variant) for code */
   font-family: ui-monospace, "SFMono-Regular", "SF Mono", Monaco, Menlo, monospace;
 }
 
 .text-string {
-  color: rgb(60 103 112); /* #3c6770 - darker foam (darker teal) for strings */
+  color: rgb(86 148 159); /* #56949f - foam (dawn variant) for strings */
 }
 
 .text-number {
-  color: rgb(195 130 40); /* #c38228 - darker gold for numbers */
+  color: rgb(234 157 52); /* #ea9d34 - gold (dawn variant) for numbers */
 }
 
 .text-keyword {
-  color: rgb(110 89 140); /* #6e598c - darker iris (darker purple) for keywords */
+  color: rgb(144 122 169); /* #907aa9 - iris (dawn variant) for keywords */
   font-weight: 500;
 }
 
 .text-error {
-  color: rgb(145 79 99); /* #914f63 - darker love (darker red) for errors */
+  color: rgb(180 99 122); /* #b4637a - love (dawn variant) for errors */
   font-weight: 500;
 }
 
 .text-warning {
-  color: rgb(195 130 40); /* #c38228 - darker gold for warnings */
+  color: rgb(234 157 52); /* #ea9d34 - gold (dawn variant) for warnings */
   font-weight: 500;
 }
 
 .text-success {
-  color: rgb(31 80 100); /* #1f5064 - darker pine (deep teal) for success */
+  color: rgb(40 105 131); /* #286983 - pine (dawn variant) for success */
   font-weight: 500;
 }
 
 .text-info {
-  color: rgb(60 103 112); /* #3c6770 - darker foam (darker teal) for info */
+  color: rgb(86 148 159); /* #56949f - foam (dawn variant) for info */
 }
 
 .text-highlight {
-  color: rgb(173 104 100); /* #ad6864 - darker rose for highlights */
+  color: rgb(215 130 126); /* #d7827e - rose (dawn variant) for highlights */
   font-weight: 500;
 }
 
 .text-muted-readable {
-  color: rgb(85 81 107); /* #55516b - darker muted purple for readable muted text */
+  color: rgb(152 147 165); /* #9893a5 - muted (dawn variant) for readable muted text */
 }
 
 .text-subtitle {
-  color: rgb(92 89 106); /* #5c596a - darker subtle purple for subtitles */
+  color: rgb(121 117 147); /* #797593 - subtle (dawn variant) for subtitles */
   font-weight: 500;
 }

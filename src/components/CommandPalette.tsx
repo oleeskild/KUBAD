@@ -277,17 +277,17 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         <DialogHeader className="sr-only">
           <DialogTitle>Command Palette</DialogTitle>
         </DialogHeader>
-        <div className="flex items-center border-b px-3">
-          <Search className="h-4 w-4 mr-3 text-muted-foreground" />
+        <div className="flex items-center border-b border-border/50 px-4 py-3">
+          <Search className="h-4 w-4 mr-3 text-muted-foreground/60" />
           <Input
             placeholder="Search for commands or paste aggregate ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border-0 bg-transparent placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="border-0 bg-transparent placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:ring-offset-0 text-foreground"
             autoFocus
           />
           <div className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
-            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded-md border border-border/50 bg-card px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
               ↵
             </kbd>
             <span>to select</span>
@@ -302,7 +302,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           ) : (
             Object.entries(groupedCommands).map(([group, commands]) => (
               <div key={group}>
-                <div className="px-3 py-2 text-xs font-medium text-muted-foreground bg-muted/50">
+                <div className="px-4 py-2 text-xs font-medium text-muted-foreground/70 bg-muted/30">
                   {group}
                 </div>
                 {commands.map((command) => {
@@ -313,10 +313,10 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                     <div
                       key={command.id}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2 text-sm cursor-pointer transition-colors",
+                        "flex items-center gap-3 px-4 py-3 text-sm cursor-pointer transition-all duration-150",
                         isSelected 
-                          ? "bg-accent text-accent-foreground" 
-                          : "hover:bg-accent hover:text-accent-foreground"
+                          ? "bg-accent/60 text-accent-foreground border-l-2 border-l-primary" 
+                          : "hover:bg-accent/30 hover:text-accent-foreground"
                       )}
                       onClick={() => handleCommandSelect(command)}
                       onMouseEnter={() => setSelectedIndex(currentIndex)}
@@ -326,14 +326,19 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                         <div className="flex-1 min-w-0">
                           <div className="font-medium">{command.label}</div>
                           {command.description && (
-                            <div className="text-xs text-muted-foreground truncate">
+                            <div className={cn(
+                              "text-xs truncate",
+                              isSelected 
+                                ? "text-accent-foreground/70" 
+                                : "text-muted-foreground/70"
+                            )}>
                               {command.description}
                             </div>
                           )}
                         </div>
                       </div>
                       {isSelected && (
-                        <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                        <ArrowRight className="h-3 w-3 text-primary/70" />
                       )}
                     </div>
                   )
@@ -343,16 +348,16 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           )}
         </div>
         
-        <div className="border-t px-3 py-2 text-xs text-muted-foreground bg-muted/50">
+        <div className="border-t border-border/50 px-4 py-3 text-xs text-muted-foreground/70 bg-muted/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-background px-1.5 font-mono text-[10px] font-medium">
+              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded-md border border-border/50 bg-card px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
                 ↑↓
               </kbd>
               <span>to navigate</span>
             </div>
             <div className="flex items-center gap-2">
-              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-background px-1.5 font-mono text-[10px] font-medium">
+              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded-md border border-border/50 bg-card px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
                 ESC
               </kbd>
               <span>to close</span>

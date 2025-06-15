@@ -1,49 +1,49 @@
 @import "tailwindcss";
 
-/* Developer-friendly solarized theme with vibrant, readable colors */
+/* Subtle light theme inspired by Rose Pine Dawn */
 :root {
-  --background: 253 246 227; /* #fdf6e3 - solarized base3 */
-  --foreground: 7 54 66; /* #073642 - solarized base02 (much darker, better contrast) */
-  --card: 238 232 213; /* #eee8d5 - solarized base2 */
-  --card-foreground: 7 54 66; /* #073642 - solarized base02 (dark, readable) */
-  --popover: 238 232 213; /* #eee8d5 - solarized base2 */
-  --popover-foreground: 7 54 66; /* #073642 - solarized base02 */
-  --primary: 38 139 210; /* #268bd2 - solarized blue */
-  --primary-foreground: 253 246 227; /* #fdf6e3 - solarized base3 */
-  --secondary: 220 214 191; /* #dcd6bf - slightly darker than base2 */
-  --secondary-foreground: 7 54 66; /* #073642 - dark readable text */
-  --muted: 238 232 213; /* #eee8d5 - solarized base2 */
-  --muted-foreground: 88 110 117; /* #586e75 - solarized base01 (medium contrast) */
-  --accent: 42 161 152; /* #2aa198 - solarized cyan */
-  --accent-foreground: 253 246 227; /* #fdf6e3 - solarized base3 */
-  --destructive: 220 50 47; /* #dc322f - solarized red */
-  --destructive-foreground: 253 246 227; /* #fdf6e3 - solarized base3 */
-  --border: 220 214 191; /* #dcd6bf - warm border */
-  --input: 220 214 191; /* #dcd6bf - warm input background */
-  --ring: 38 139 210; /* #268bd2 - solarized blue */
+  --background: 250 244 237; /* #faf4ed - warm cream base */
+  --foreground: 57 53 82; /* #393552 - dark purple-gray */
+  --card: 255 250 243; /* #fffaf3 - lighter cream */
+  --card-foreground: 57 53 82; /* #393552 - dark purple-gray */
+  --popover: 255 250 243; /* #fffaf3 - lighter cream */
+  --popover-foreground: 57 53 82; /* #393552 - dark purple-gray */
+  --primary: 144 122 169; /* #907aa9 - soft purple */
+  --primary-foreground: 250 244 237; /* #faf4ed - warm cream */
+  --secondary: 243 237 230; /* #f3ede6 - very light cream */
+  --secondary-foreground: 57 53 82; /* #393552 - dark purple-gray */
+  --muted: 242 233 222; /* #f2e9de - subtle cream */
+  --muted-foreground: 108 103 133; /* #6c6785 - medium purple-gray */
+  --accent: 180 99 122; /* #b4637a - muted rose */
+  --accent-foreground: 255 250 243; /* #fffaf3 - lighter cream */
+  --destructive: 180 99 122; /* #b4637a - muted rose for errors */
+  --destructive-foreground: 255 250 243; /* #fffaf3 - lighter cream */
+  --border: 232 221 211; /* #e8ddd3 - subtle warm border */
+  --input: 243 237 230; /* #f3ede6 - very light cream */
+  --ring: 144 122 169; /* #907aa9 - soft purple */
   --radius: 0.5rem;
 }
 
 .dark {
-  --background: 15 23 42; /* #0f172a */
-  --foreground: 248 250 252; /* #f8fafc */
-  --card: 30 41 59; /* #1e293b */
-  --card-foreground: 248 250 252; /* #f8fafc */
-  --popover: 30 41 59; /* #1e293b */
-  --popover-foreground: 248 250 252; /* #f8fafc */
-  --primary: 96 165 250; /* #60a5fa */
-  --primary-foreground: 15 23 42; /* #0f172a */
-  --secondary: 51 65 85; /* #334155 */
-  --secondary-foreground: 203 213 225; /* #cbd5e1 */
-  --muted: 51 65 85; /* #334155 */
-  --muted-foreground: 148 163 184; /* #94a3b8 */
-  --accent: 30 58 138; /* #1e3a8a */
-  --accent-foreground: 147 197 253; /* #93c5fd */
-  --destructive: 248 113 113; /* #f87171 */
-  --destructive-foreground: 15 23 42; /* #0f172a */
-  --border: 71 85 105; /* #475569 */
-  --input: 71 85 105; /* #475569 */
-  --ring: 96 165 250; /* #60a5fa */
+  --background: 25 23 36; /* #191724 - base */
+  --foreground: 250 249 255; /* #faf9ff - much brighter text */
+  --card: 38 35 58; /* #26233a - surface */
+  --card-foreground: 250 249 255; /* #faf9ff - much brighter text */
+  --popover: 38 35 58; /* #26233a - surface */
+  --popover-foreground: 250 249 255; /* #faf9ff - much brighter text */
+  --primary: 144 122 169; /* #907aa9 - iris */
+  --primary-foreground: 25 23 36; /* #191724 - base */
+  --secondary: 49 44 68; /* #312c44 - overlay */
+  --secondary-foreground: 250 249 255; /* #faf9ff - much brighter text */
+  --muted: 49 44 68; /* #312c44 - overlay */
+  --muted-foreground: 200 198 220; /* #c8c6dc - much brighter subtle */
+  --accent: 235 188 186; /* #ebbcba - rose (lighter pink) */
+  --accent-foreground: 250 249 255; /* #faf9ff - much brighter text */
+  --destructive: 235 111 146; /* #eb6f92 - love */
+  --destructive-foreground: 25 23 36; /* #191724 - base */
+  --border: 64 60 86; /* #403c56 - muted */
+  --input: 49 44 68; /* #312c44 - overlay */
+  --ring: 144 122 169; /* #907aa9 - iris */
 }
 
 @theme {
@@ -115,54 +115,54 @@ body {
   outline-offset: 2px;
 }
 
-/* Developer-friendly color coding for different text types */
+/* Rose Pine inspired color coding for different text types - darker for better readability */
 .text-code {
-  color: rgb(133 153 0); /* #859900 - solarized green for code */
+  color: rgb(31 80 100); /* #1f5064 - darker pine (deep teal) for code */
   font-family: ui-monospace, "SFMono-Regular", "SF Mono", Monaco, Menlo, monospace;
 }
 
 .text-string {
-  color: rgb(42 161 152); /* #2aa198 - solarized cyan for strings */
+  color: rgb(60 103 112); /* #3c6770 - darker foam (darker teal) for strings */
 }
 
 .text-number {
-  color: rgb(211 54 130); /* #d33682 - solarized magenta for numbers */
+  color: rgb(195 130 40); /* #c38228 - darker gold for numbers */
 }
 
 .text-keyword {
-  color: rgb(108 113 196); /* #6c71c4 - solarized violet for keywords */
+  color: rgb(110 89 140); /* #6e598c - darker iris (darker purple) for keywords */
   font-weight: 500;
 }
 
 .text-error {
-  color: rgb(220 50 47); /* #dc322f - solarized red for errors */
+  color: rgb(145 79 99); /* #914f63 - darker love (darker red) for errors */
   font-weight: 500;
 }
 
 .text-warning {
-  color: rgb(203 75 22); /* #cb4b16 - solarized orange for warnings */
+  color: rgb(195 130 40); /* #c38228 - darker gold for warnings */
   font-weight: 500;
 }
 
 .text-success {
-  color: rgb(133 153 0); /* #859900 - solarized green for success */
+  color: rgb(31 80 100); /* #1f5064 - darker pine (deep teal) for success */
   font-weight: 500;
 }
 
 .text-info {
-  color: rgb(38 139 210); /* #268bd2 - solarized blue for info */
+  color: rgb(60 103 112); /* #3c6770 - darker foam (darker teal) for info */
 }
 
 .text-highlight {
-  color: rgb(181 137 0); /* #b58900 - solarized yellow for highlights */
+  color: rgb(173 104 100); /* #ad6864 - darker rose for highlights */
   font-weight: 500;
 }
 
 .text-muted-readable {
-  color: rgb(88 110 117); /* #586e75 - solarized base01 for readable muted text */
+  color: rgb(85 81 107); /* #55516b - darker muted purple for readable muted text */
 }
 
 .text-subtitle {
-  color: rgb(101 123 131); /* #657b83 - solarized base00 for subtitles */
+  color: rgb(92 89 106); /* #5c596a - darker subtle purple for subtitles */
   font-weight: 500;
 }

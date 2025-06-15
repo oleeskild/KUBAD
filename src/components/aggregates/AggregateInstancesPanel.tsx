@@ -101,8 +101,8 @@ export function AggregateInstancesPanel({
   }
 
   return (
-    <div className="p-4 h-full border-l border-border flex flex-col">
-      <div className="flex flex-col gap-4 h-full">
+    <div className="p-4 h-full border-l border-border flex flex-col overflow-hidden">
+      <div className="flex flex-col gap-4 h-full min-h-0">
         <div>
           <h3 className="text-lg font-semibold text-keyword mb-2">
             {selectedAggregate}
@@ -196,28 +196,134 @@ export function AggregateInstancesPanel({
 
           <Separator />
 
-          <div className="flex-1 flex flex-col gap-4 min-h-0">
-            {/* Pinned Instances Section - Fixed height, scrollable */}
-            <div className="h-64">
+          <div className="flex-1 overflow-hidden flex flex-col">
+            {/* Pinned Instances Section */}
+            <div className="shrink-0">
               <h4 className="text-sm font-medium mb-3 flex items-center gap-2 text-highlight">
                 <Pin className="h-4 w-4 text-primary" />
                 Pinned Instances
               </h4>
               {getPinnedAggregateInstances(selectedAggregate).length > 0 ? (
-                <div className="space-y-2 h-[calc(100%-2.5rem)] overflow-y-auto px-1 pt-1">
-                  {getPinnedAggregateInstances(selectedAggregate).map(
-                    (instance, pinnedIndex) => {
+                <div 
+                  className="max-h-64 overflow-y-auto border border-border rounded-lg bg-muted/30"
+                  style={{ scrollbarWidth: 'thin' }}
+                >
+                  <div className="space-y-2 p-2">
+                    {getPinnedAggregateInstances(selectedAggregate).map(
+                      (instance, pinnedIndex) => {
+                        const isSelected =
+                          selectedStream === `${selectedAggregate}-${instance.guid}`;
+                        const streamId = `${selectedAggregate}-${instance.guid}`;
+                        const isKeyboardSelected =
+                          isActiveColumn && selectedInstanceIndex === pinnedIndex;
+                        return (
+                          <div
+                            key={instance.guid}
+                            ref={isKeyboardSelected ? selectedItemRef : null}
+                            className={cn(
+                              "p-3 rounded-lg border cursor-pointer transition-colors relative",
+                              isSelected
+                                ? "border-primary bg-primary/10 shadow-md"
+                                : "border-border bg-muted hover:bg-muted/80",
+                              isKeyboardSelected &&
+                                "ring-4 ring-blue-500 ring-offset-2 ring-offset-background shadow-2xl border-blue-400"
+                            )}
+                            onClick={() => onInstanceSelect(instance)}
+                          >
+                            {/* Pinned indicator */}
+                            <div className="absolute top-1 right-1">
+                              <Pin className="h-3 w-3 text-primary" />
+                            </div>
+                            <div className="flex items-center justify-between pr-4">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <code className="text-xs font-mono bg-background px-1 rounded truncate text-code">
+                                    {instance.guid}
+                                  </code>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) =>
+                                      onCopyToClipboard(instance.guid, e)
+                                    }
+                                    className="h-4 w-4 p-0 cursor-pointer"
+                                  >
+                                    <Copy className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onTogglePinStream(streamId);
+                                    }}
+                                    className="h-4 w-4 p-0 cursor-pointer text-primary hover:text-primary/80"
+                                  >
+                                    <PinOff className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {instance.eventCount} events •{" "}
+                                  {new Date(instance.created).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-32 text-muted-foreground border border-border rounded-lg bg-muted/30">
+                  <div className="text-center">
+                    <Pin className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No pinned instances yet</p>
+                    <p className="text-xs mt-1">
+                      Pin instances from the recent list below
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Recent Instances Section */}
+            <div className="flex-1 mt-4 overflow-hidden flex flex-col">
+              <Separator className="mb-4" />
+              <h4 className="text-sm font-medium mb-3 shrink-0">Recent Instances</h4>
+              <div 
+                className="flex-1 overflow-y-auto border border-border rounded-lg bg-muted/30"
+                style={{ scrollbarWidth: 'thin' }}
+              >
+                <div className="space-y-2 p-2">
+                  {isLoadingInstances ? (
+                    [...Array(5)].map((_, i) => (
+                      <Skeleton key={i} className="h-12 w-full" />
+                    ))
+                  ) : selectedAggregateInstances.length === 0 ? (
+                    <div className="text-center py-6 text-muted-foreground">
+                      <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">
+                        No instances found for this aggregate
+                      </p>
+                    </div>
+                  ) : (
+                    selectedAggregateInstances.map((instance, recentIndex) => {
                       const isSelected =
                         selectedStream === `${selectedAggregate}-${instance.guid}`;
                       const streamId = `${selectedAggregate}-${instance.guid}`;
+                      const pinned = isPinned(streamId);
+                      const pinnedCount = getPinnedAggregateInstances(selectedAggregate).length;
                       const isKeyboardSelected =
-                        isActiveColumn && selectedInstanceIndex === pinnedIndex;
+                        isActiveColumn &&
+                        selectedInstanceIndex === pinnedCount + recentIndex;
+
                       return (
                         <div
                           key={instance.guid}
                           ref={isKeyboardSelected ? selectedItemRef : null}
                           className={cn(
-                            "p-3 rounded-lg border cursor-pointer transition-colors relative",
+                            "p-3 rounded-lg border cursor-pointer transition-colors",
                             isSelected
                               ? "border-primary bg-primary/10 shadow-md"
                               : "border-border bg-muted hover:bg-muted/80",
@@ -226,14 +332,10 @@ export function AggregateInstancesPanel({
                           )}
                           onClick={() => onInstanceSelect(instance)}
                         >
-                          {/* Pinned indicator */}
-                          <div className="absolute top-1 right-1">
-                            <Pin className="h-3 w-3 text-primary" />
-                          </div>
-                          <div className="flex items-center justify-between pr-4">
+                          <div className="flex items-center justify-between">
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
-                                <code className="text-xs font-mono bg-background px-1 rounded truncate text-code">
+                                <code className="text-xs font-mono bg-background px-1 rounded truncate">
                                   {instance.guid}
                                 </code>
                                 <Button
@@ -253,9 +355,14 @@ export function AggregateInstancesPanel({
                                     e.stopPropagation();
                                     onTogglePinStream(streamId);
                                   }}
-                                  className="h-4 w-4 p-0 cursor-pointer text-primary hover:text-primary/80"
+                                  className={cn(
+                                    "h-4 w-4 p-0 cursor-pointer transition-colors",
+                                    pinned
+                                      ? "text-primary hover:text-primary/80"
+                                      : "text-muted-foreground hover:text-primary"
+                                  )}
                                 >
-                                  <PinOff className="h-3 w-3" />
+                                  <Pin className="h-3 w-3" />
                                 </Button>
                               </div>
                               <p className="text-xs text-muted-foreground mt-1">
@@ -266,106 +373,9 @@ export function AggregateInstancesPanel({
                           </div>
                         </div>
                       );
-                    }
+                    })
                   )}
                 </div>
-              ) : (
-                <div className="flex items-center justify-center h-[calc(100%-2rem)] text-muted-foreground">
-                  <div className="text-center">
-                    <Pin className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No pinned instances yet</p>
-                    <p className="text-xs mt-1">
-                      Pin instances from the recent list below
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Recent Instances Section - Takes remaining space, scrollable */}
-            <div className="flex-1 min-h-0">
-              <Separator className="mb-2" />
-              <h4 className="text-sm font-medium mb-2">Recent Instances</h4>
-              <div className="space-y-2 h-[calc(100%-3rem)] overflow-y-auto px-1 pt-1">
-                {isLoadingInstances ? (
-                  [...Array(5)].map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-full" />
-                  ))
-                ) : selectedAggregateInstances.length === 0 ? (
-                  <div className="text-center py-6 text-muted-foreground">
-                    <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">
-                      No instances found for this aggregate
-                    </p>
-                  </div>
-                ) : (
-                  selectedAggregateInstances.map((instance, recentIndex) => {
-                    const isSelected =
-                      selectedStream === `${selectedAggregate}-${instance.guid}`;
-                    const streamId = `${selectedAggregate}-${instance.guid}`;
-                    const pinned = isPinned(streamId);
-                    const pinnedCount = getPinnedAggregateInstances(selectedAggregate).length;
-                    const isKeyboardSelected =
-                      isActiveColumn &&
-                      selectedInstanceIndex === pinnedCount + recentIndex;
-
-                    return (
-                      <div
-                        key={instance.guid}
-                        ref={isKeyboardSelected ? selectedItemRef : null}
-                        className={cn(
-                          "p-3 rounded-lg border cursor-pointer transition-colors",
-                          isSelected
-                            ? "border-primary bg-primary/10 shadow-md"
-                            : "border-border bg-muted hover:bg-muted/80",
-                          isKeyboardSelected &&
-                            "ring-4 ring-blue-500 ring-offset-2 ring-offset-background shadow-2xl border-blue-400"
-                        )}
-                        onClick={() => onInstanceSelect(instance)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <code className="text-xs font-mono bg-background px-1 rounded truncate">
-                                {instance.guid}
-                              </code>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) =>
-                                  onCopyToClipboard(instance.guid, e)
-                                }
-                                className="h-4 w-4 p-0 cursor-pointer"
-                              >
-                                <Copy className="h-3 w-3" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onTogglePinStream(streamId);
-                                }}
-                                className={cn(
-                                  "h-4 w-4 p-0 cursor-pointer transition-colors",
-                                  pinned
-                                    ? "text-primary hover:text-primary/80"
-                                    : "text-muted-foreground hover:text-primary"
-                                )}
-                              >
-                                <Pin className="h-3 w-3" />
-                              </Button>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {instance.eventCount} events •{" "}
-                              {new Date(instance.created).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
               </div>
             </div>
           </div>

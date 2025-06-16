@@ -114,7 +114,7 @@ export const Route = createRootRoute({
         <header className="border-b flex-shrink-0">
           <div className="flex h-16 items-center px-4">
             <div className="flex items-center space-x-4">
-              <Database className="h-6 w-6" />
+              <img src="/kubad-logo.svg" alt="KUBAD Logo" className="h-8 w-8" />
               <div className="flex flex-col">
                 <h1 className="text-xl font-bold">KUBAD</h1>
                 <p className="text-xs text-muted-foreground">Kurrent UI But Actually Decent</p>

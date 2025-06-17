@@ -214,7 +214,7 @@ export function EventsPanel({
         <Separator />
 
         {/* JSONPath Filter */}
-        <div className="space-y-2">
+        <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between">
             <label className="text-xs font-medium text-muted-foreground">
               JSON Path Filter

@@ -88,6 +88,9 @@ function AggregatesPage() {
     isFilterFocused: false,
   });
 
+  // Search focus state for aggregates panel
+  const [isAggregateSearchFocused, setIsAggregateSearchFocused] = useState(false);
+
   // Fullscreen state
   const [isEventsFullscreen, setIsEventsFullscreen] = useState(false);
 
@@ -262,6 +265,8 @@ function AggregatesPage() {
     onToggleFullscreen: toggleEventsFullscreen,
     getPinnedAggregateInstances: (aggregateType) => getPinnedAggregateInstances(aggregateType, pinnedStreams),
     guidInputRef,
+    isAggregateSearchFocused,
+    onAggregateSearchFocusChange: setIsAggregateSearchFocused,
   });
 
   return (
@@ -311,6 +316,8 @@ function AggregatesPage() {
                 isActiveColumn={navigationState.activeColumn === "aggregates"}
                 eventScanCount={eventScanCount}
                 onEventScanCountChange={setEventScanCount}
+                isSearchFocused={isAggregateSearchFocused}
+                onSearchFocusChange={setIsAggregateSearchFocused}
               />
             </ResizablePanel>
 

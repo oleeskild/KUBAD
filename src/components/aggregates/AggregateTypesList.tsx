@@ -22,6 +22,8 @@ interface AggregateTypesListProps {
   isActiveColumn: boolean;
   eventScanCount: number;
   onEventScanCountChange: (count: number) => void;
+  isSearchFocused: boolean;
+  onSearchFocusChange: (focused: boolean) => void;
 }
 
 export function AggregateTypesList({
@@ -33,10 +35,14 @@ export function AggregateTypesList({
   isActiveColumn,
   eventScanCount,
   onEventScanCountChange,
+  isSearchFocused,
+  onSearchFocusChange,
 }: AggregateTypesListProps) {
   const [newAggregateName, setNewAggregateName] = useState("");
   const [pendingScanCount, setPendingScanCount] = useState(eventScanCount);
+  const [searchQuery, setSearchQuery] = useState("");
   const selectedItemRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-load streams on mount
   const { data: streams, isLoading: streamsLoading } = useQuery({
@@ -91,6 +97,33 @@ export function AggregateTypesList({
       .sort();
   };
 
+  // Filter aggregates based on search query
+  const getFilteredAggregates = () => {
+    if (!searchQuery.trim()) return userAggregates;
+    
+    const query = searchQuery.toLowerCase();
+    return userAggregates.filter((aggregate) =>
+      aggregate.toLowerCase().includes(query)
+    );
+  };
+
+  // Handle search input focus/blur
+  useEffect(() => {
+    if (isSearchFocused && searchInputRef.current) {
+      searchInputRef.current.focus();
+      onSearchFocusChange(true);
+    }
+  }, [isSearchFocused, onSearchFocusChange]);
+
+  // Clear search when escape is pressed
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setSearchQuery("");
+      searchInputRef.current?.blur();
+      onSearchFocusChange(false);
+    }
+  };
+
   // Auto-scroll to selected item
   useEffect(() => {
     if (isActiveColumn && selectedItemRef.current) {
@@ -139,6 +172,20 @@ export function AggregateTypesList({
 
         <Separator />
 
+        {/* Search input */}
+        <div className="space-y-2">
+          <Input
+            ref={searchInputRef}
+            placeholder="Search aggregates... (press / to focus)"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            onFocus={() => onSearchFocusChange(true)}
+            onBlur={() => onSearchFocusChange(false)}
+            className="h-9 text-sm bg-gradient-to-r from-background to-background/80 border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg transition-all duration-200"
+          />
+        </div>
+
         <div className="space-y-2 flex-1 overflow-y-auto px-1 pt-1">
           {userAggregates.length === 0 ? (
             <div className="text-center py-6 text-muted-foreground">
@@ -147,8 +194,15 @@ export function AggregateTypesList({
                 No aggregates added yet
               </p>
             </div>
+          ) : getFilteredAggregates().length === 0 ? (
+            <div className="text-center py-6 text-muted-foreground">
+              <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm text-muted-readable">
+                No aggregates match "{searchQuery}"
+              </p>
+            </div>
           ) : (
-            userAggregates.map((aggregateType, index) => {
+            getFilteredAggregates().map((aggregateType, index) => {
               const isSelected = selectedAggregate === aggregateType;
               const isKeyboardSelected =
                 isActiveColumn && selectedAggregateIndex === index;

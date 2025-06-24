@@ -20,6 +20,8 @@ interface UseKeyboardNavigationProps {
   onToggleFullscreen?: () => void;
   getPinnedAggregateInstances: (aggregateType: string) => AggregateInstance[];
   guidInputRef: React.RefObject<HTMLInputElement | null>;
+  isAggregateSearchFocused: boolean;
+  onAggregateSearchFocusChange: (focused: boolean) => void;
 }
 
 export function useKeyboardNavigation({
@@ -40,6 +42,8 @@ export function useKeyboardNavigation({
   onToggleFullscreen,
   getPinnedAggregateInstances,
   guidInputRef,
+  isAggregateSearchFocused,
+  onAggregateSearchFocusChange,
 }: UseKeyboardNavigationProps) {
   const {
     activeColumn,
@@ -171,14 +175,25 @@ export function useKeyboardNavigation({
       onExpandAll();
     } else if (e.key === "/") {
       e.preventDefault();
-      onNavigationChange({ isFilterFocused: true });
-      // Focus the filter input
-      setTimeout(() => {
-        const filterInput = document.querySelector(
-          'input[placeholder*="$.propertyName"]'
-        ) as HTMLInputElement;
-        filterInput?.focus();
-      }, 0);
+      if (activeColumn === "aggregates") {
+        // Focus aggregates search
+        onAggregateSearchFocusChange(true);
+        setTimeout(() => {
+          const aggregateSearchInput = document.querySelector(
+            'input[placeholder*="Search aggregates"]'
+          ) as HTMLInputElement;
+          aggregateSearchInput?.focus();
+        }, 0);
+      } else {
+        // Focus events filter
+        onNavigationChange({ isFilterFocused: true });
+        setTimeout(() => {
+          const filterInput = document.querySelector(
+            'input[placeholder*="$.propertyName"]'
+          ) as HTMLInputElement;
+          filterInput?.focus();
+        }, 0);
+      }
     } else if (e.key === "p") {
       e.preventDefault();
       if (selectedStream) {
@@ -198,6 +213,7 @@ export function useKeyboardNavigation({
       // Don't handle keyboard navigation when filter is focused or in input fields
       if (
         isFilterFocused ||
+        isAggregateSearchFocused ||
         (e.target as HTMLElement)?.tagName === "INPUT" ||
         (e.target as HTMLElement)?.tagName === "TEXTAREA" ||
         (e.target as HTMLElement)?.contentEditable === "true"

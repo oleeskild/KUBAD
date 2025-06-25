@@ -92,8 +92,11 @@ export function useAggregateOperations({
     _navigationState?: any,
     setNavigationState?: any
   ) => {
+    // Only clear instances if we're switching to a different aggregate type
+    if (selectedAggregate !== aggregateType) {
+      setSelectedAggregateInstances([]);
+    }
     setSelectedAggregate(aggregateType);
-    setSelectedAggregateInstances([]);
     setSelectedStream(null);
 
     if (!guid) {

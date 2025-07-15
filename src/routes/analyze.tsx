@@ -10,6 +10,7 @@ import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import { Activity, Loader2, TrendingUp, PieChartIcon, BarChart3 } from 'lucide-react'
 import { serverManager } from '@/api/eventstore'
 import { format, subHours, startOfHour } from 'date-fns'
+import { formatInTimeZone, fromZonedTime, toZonedTime } from 'date-fns-tz'
 import { useSavedAggregates } from '@/contexts/SavedAggregatesContext'
 
 export const Route = createFileRoute('/analyze')({
@@ -58,8 +59,40 @@ function AnalyzePage() {
   const [eventTypeData, setEventTypeData] = useState<EventTypeData[]>([])
   const [totalEvents, setTotalEvents] = useState(0)
   const [timeGranularity, setTimeGranularity] = useState<'hour' | 'minute' | 'second'>('hour')
+  const [timezone, setTimezone] = useState<'UTC' | 'Europe/Oslo'>('Europe/Oslo')
 
   const { savedAggregates } = useSavedAggregates()
+
+  const getTimezoneOffset = (tz: string) => {
+    if (tz === 'UTC') return 'UTC'
+    const now = new Date()
+    const formatter = new Intl.DateTimeFormat('en', {
+      timeZone: tz,
+      timeZoneName: 'short'
+    })
+    return formatter.formatToParts(now).find(part => part.type === 'timeZoneName')?.value || tz
+  }
+
+  const convertToSelectedTimezone = (date: Date): Date => {
+    if (timezone === 'UTC') {
+      return date
+    }
+    return toZonedTime(date, timezone)
+  }
+
+  const convertFromSelectedTimezone = (date: Date): Date => {
+    if (timezone === 'UTC') {
+      return date
+    }
+    return fromZonedTime(date, timezone)
+  }
+
+  const formatDateForTimezone = (date: Date, formatStr: string): string => {
+    if (timezone === 'UTC') {
+      return format(date, formatStr)
+    }
+    return formatInTimeZone(date, timezone, formatStr)
+  }
 
   const fetchEvents = useCallback(async (
     streamName: string,
@@ -165,8 +198,8 @@ function AnalyzePage() {
     setEventTypeData([])
     setTotalEvents(0)
 
-    const start = new Date(startDate)
-    const end = new Date(endDate)
+    const start = convertFromSelectedTimezone(new Date(startDate))
+    const end = convertFromSelectedTimezone(new Date(endDate))
 
     try {
       // Use binary search to find the start and end positions
@@ -207,15 +240,16 @@ function AnalyzePage() {
 
       allEvents.forEach(event => {
         const eventDate = getEventDate(event)
+        const zonedDate = convertToSelectedTimezone(eventDate)
         
         // Group by time granularity
         let timeKey: string
         if (timeGranularity === 'hour') {
-          timeKey = format(startOfHour(eventDate), 'yyyy-MM-dd HH:00')
+          timeKey = formatDateForTimezone(startOfHour(zonedDate), 'yyyy-MM-dd HH:00')
         } else if (timeGranularity === 'minute') {
-          timeKey = format(eventDate, 'yyyy-MM-dd HH:mm')
+          timeKey = formatDateForTimezone(zonedDate, 'yyyy-MM-dd HH:mm')
         } else {
-          timeKey = format(eventDate, 'yyyy-MM-dd HH:mm:ss')
+          timeKey = formatDateForTimezone(zonedDate, 'yyyy-MM-dd HH:mm:ss')
         }
 
         rateMap.set(timeKey, (rateMap.get(timeKey) || 0) + 1)
@@ -248,7 +282,7 @@ function AnalyzePage() {
     } finally {
       setAnalyzing(false)
     }
-  }, [streamName, startDate, endDate, timeGranularity, binarySearchForDate])
+  }, [streamName, startDate, endDate, timeGranularity, timezone, binarySearchForDate])
 
   // Colors for pie chart
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF6B6B', '#4ECDC4', '#45B7D1']
@@ -309,6 +343,19 @@ function AnalyzePage() {
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="timezone">Timezone</Label>
+                <Select value={timezone} onValueChange={(value: 'UTC' | 'Europe/Oslo') => setTimezone(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="UTC">UTC</SelectItem>
+                    <SelectItem value="Europe/Oslo">Norwegian Time (Europe/Oslo)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -354,7 +401,7 @@ function AnalyzePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="startDate">Start Date & Time</Label>
+                <Label htmlFor="startDate">Start Date & Time ({getTimezoneOffset(timezone)})</Label>
                 <Input
                   id="startDate"
                   type="datetime-local"
@@ -365,7 +412,7 @@ function AnalyzePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="endDate">End Date & Time</Label>
+                <Label htmlFor="endDate">End Date & Time ({getTimezoneOffset(timezone)})</Label>
                 <Input
                   id="endDate"
                   type="datetime-local"
@@ -427,7 +474,7 @@ function AnalyzePage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    {format(new Date(startDate), 'MMM d, HH:mm')} - {format(new Date(endDate), 'MMM d, HH:mm')}
+                    {formatDateForTimezone(new Date(startDate), 'MMM d, HH:mm')} - {formatDateForTimezone(new Date(endDate), 'MMM d, HH:mm')} ({getTimezoneOffset(timezone)})
                   </p>
                 </CardContent>
               </Card>

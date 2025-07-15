@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { serverManager } from "@/api/eventstore";
 import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { Badge } from "@/components/ui/badge";
 import { useSavedAggregates } from "@/contexts/SavedAggregatesContext";
 import {
@@ -82,6 +83,7 @@ function CEBinarySearch() {
   const [sortBy, setSortBy] = useState<'date' | 'position' | 'size' | 'type'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
+  const [timezone, setTimezone] = useState<'UTC' | 'Europe/Oslo'>('Europe/Oslo');
 
   const { savedAggregates } = useSavedAggregates();
 
@@ -310,6 +312,23 @@ function CEBinarySearch() {
     return sortOrder === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
   };
 
+  const getTimezoneOffset = (tz: string) => {
+    if (tz === 'UTC') return 'UTC'
+    const now = new Date()
+    const formatter = new Intl.DateTimeFormat('en', {
+      timeZone: tz,
+      timeZoneName: 'short'
+    })
+    return formatter.formatToParts(now).find(part => part.type === 'timeZoneName')?.value || tz
+  }
+
+  const formatDateForTimezone = (date: Date, formatStr: string): string => {
+    if (timezone === 'UTC') {
+      return format(date, formatStr)
+    }
+    return formatInTimeZone(date, timezone, formatStr)
+  }
+
   return (
     <div className="container mx-auto p-6 max-w-6xl">
       <div className="mb-8">
@@ -399,7 +418,7 @@ function CEBinarySearch() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="date">Target Date & Time</Label>
+              <Label htmlFor="date">Target Date & Time ({getTimezoneOffset(timezone)})</Label>
               <Input
                 id="date"
                 type="datetime-local"
@@ -409,23 +428,38 @@ function CEBinarySearch() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="timeWindow">Time Window (minutes)</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="timeWindow"
-                  type="number"
-                  min="1"
-                  max="1440"
-                  value={timeWindowMinutes}
-                  onChange={(e) =>
-                    setTimeWindowMinutes(parseInt(e.target.value) || 60)
-                  }
-                  className="w-32"
-                />
-                <span className="text-sm text-muted-foreground">
-                  Events within ±{timeWindowMinutes} minutes
-                </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="timeWindow">Time Window (minutes)</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="timeWindow"
+                    type="number"
+                    min="1"
+                    max="1440"
+                    value={timeWindowMinutes}
+                    onChange={(e) =>
+                      setTimeWindowMinutes(parseInt(e.target.value) || 60)
+                    }
+                    className="w-32"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    Events within ±{timeWindowMinutes} minutes
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="timezone">Timezone</Label>
+                <Select value={timezone} onValueChange={(value: 'UTC' | 'Europe/Oslo') => setTimezone(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="UTC">UTC</SelectItem>
+                    <SelectItem value="Europe/Oslo">Norwegian Time (Europe/Oslo)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -469,7 +503,7 @@ function CEBinarySearch() {
                       Position {step.position}
                     </Badge>
                     <span className="text-muted-foreground">
-                      {format(new Date(step.date), "yyyy-MM-dd HH:mm:ss")}
+                      {formatDateForTimezone(new Date(step.date), "yyyy-MM-dd HH:mm:ss")} ({getTimezoneOffset(timezone)})
                     </span>
                     <ChevronRight className="h-3 w-3" />
                     <span className="text-xs">Going {step.direction}</span>
@@ -599,7 +633,7 @@ function CEBinarySearch() {
                           <div className="flex items-center gap-2">
                             <span className="font-medium">Date:</span>
                             <span className="font-mono">
-                              {format(eventDate, "yyyy-MM-dd HH:mm:ss.SSS")}
+                              {formatDateForTimezone(eventDate, "yyyy-MM-dd HH:mm:ss.SSS")} ({getTimezoneOffset(timezone)})
                             </span>
                           </div>
                           <div className="flex items-center gap-2">

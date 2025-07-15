@@ -122,6 +122,7 @@ export const Route = createRootRoute({
       { to: '/projections', icon: BookOpen, label: 'Projections' },
       { to: '/stats', icon: Activity, label: 'Statistics' },
       { to: '/aggregates', icon: Package, label: 'Aggregates', search: { aggregate: undefined, guid: undefined, stream: undefined } },
+      { to: '/analyze', icon: Activity, label: 'Analyze' },
       { to: '/servers', icon: Server, label: 'Servers' },
       { to: '/ce-binary-search', icon: Search, label: 'Temporal Search' },
       { to: '/manage-aggregates', icon: Settings, label: 'Manage Aggregates' },

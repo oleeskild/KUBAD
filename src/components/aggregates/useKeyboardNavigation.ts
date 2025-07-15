@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import type { Event } from "@/api/eventstore";
 import type { KeyboardNavigationState, AggregateInstance } from "./types";
+import { useSavedAggregates } from "@/contexts/SavedAggregatesContext";
 
 interface UseKeyboardNavigationProps {
   navigationState: KeyboardNavigationState;
   onNavigationChange: (state: Partial<KeyboardNavigationState>) => void;
-  userAggregates: string[];
   selectedAggregate: string | null;
   selectedAggregateInstances: AggregateInstance[];
   events: Event[] | null | undefined;
@@ -27,7 +27,6 @@ interface UseKeyboardNavigationProps {
 export function useKeyboardNavigation({
   navigationState,
   onNavigationChange,
-  userAggregates,
   selectedAggregate,
   selectedAggregateInstances,
   events,
@@ -45,6 +44,8 @@ export function useKeyboardNavigation({
   isAggregateSearchFocused,
   onAggregateSearchFocusChange,
 }: UseKeyboardNavigationProps) {
+  const { savedAggregates } = useSavedAggregates();
+  
   const {
     activeColumn,
     selectedAggregateIndex,
@@ -55,7 +56,7 @@ export function useKeyboardNavigation({
 
   // Keyboard navigation helper functions
   const handleAggregatesKeyNav = (e: KeyboardEvent) => {
-    const maxIndex = userAggregates.length - 1;
+    const maxIndex = savedAggregates.length - 1;
 
     if (e.key === "j" || e.key === "ArrowDown") {
       e.preventDefault();
@@ -73,8 +74,8 @@ export function useKeyboardNavigation({
       onNavigationChange({ selectedAggregateIndex: maxIndex });
     } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      if (userAggregates[selectedAggregateIndex]) {
-        onAggregateSelect(userAggregates[selectedAggregateIndex]);
+      if (savedAggregates[selectedAggregateIndex]) {
+        onAggregateSelect(savedAggregates[selectedAggregateIndex].name);
         onNavigationChange({
           activeColumn: "instances",
           selectedInstanceIndex: -1, // Start at GUID input
@@ -282,7 +283,7 @@ export function useKeyboardNavigation({
     selectedAggregateIndex,
     selectedInstanceIndex,
     selectedEventIndex,
-    userAggregates,
+    savedAggregates,
     selectedAggregateInstances,
     events,
     isFilterFocused,
@@ -294,7 +295,7 @@ export function useKeyboardNavigation({
   // Reset selections when data changes
   useEffect(() => {
     onNavigationChange({ selectedAggregateIndex: 0 });
-  }, [userAggregates]);
+  }, [savedAggregates]);
 
   useEffect(() => {
     onNavigationChange({ selectedInstanceIndex: 0 });

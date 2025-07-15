@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Package, Plus, Trash2 } from "lucide-react";
+import { useSavedAggregates } from "@/contexts/SavedAggregatesContext";
 import {
   Tooltip,
   TooltipContent,
@@ -14,8 +15,6 @@ import {
 } from "@/components/ui/tooltip";
 
 interface AggregateTypesListProps {
-  userAggregates: string[];
-  onAggregatesChange: (aggregates: string[]) => void;
   selectedAggregate: string | null;
   onAggregateSelect: (aggregateType: string) => void;
   selectedAggregateIndex: number;
@@ -27,8 +26,6 @@ interface AggregateTypesListProps {
 }
 
 export function AggregateTypesList({
-  userAggregates,
-  onAggregatesChange,
   selectedAggregate,
   onAggregateSelect,
   selectedAggregateIndex,
@@ -43,6 +40,9 @@ export function AggregateTypesList({
   const [searchQuery, setSearchQuery] = useState("");
   const selectedItemRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  
+  // Saved aggregates context
+  const { savedAggregates, addAggregate, removeAggregate } = useSavedAggregates();
 
   // Auto-load streams on mount
   const { data: streams, isLoading: streamsLoading } = useQuery({
@@ -58,23 +58,19 @@ export function AggregateTypesList({
     }
   }, []);
 
-  // Add new user aggregate
-  const addUserAggregate = (aggregateName: string) => {
+  // Add new aggregate
+  const addNewAggregate = (aggregateName: string) => {
     const trimmed = aggregateName.trim();
-    if (trimmed && !userAggregates.includes(trimmed)) {
-      const newAggregates = [...userAggregates, trimmed].sort();
-      onAggregatesChange(newAggregates);
+    if (trimmed && !savedAggregates.some(agg => agg.name === trimmed)) {
+      addAggregate({
+        name: trimmed,
+        streamPrefix: `$ce-${trimmed}`,
+        description: 'Added from aggregates view',
+      });
       setNewAggregateName("");
     }
   };
 
-  // Remove user aggregate
-  const removeUserAggregate = (aggregateName: string) => {
-    const newAggregates = userAggregates.filter(
-      (name) => name !== aggregateName
-    );
-    onAggregatesChange(newAggregates);
-  };
 
   // Get suggested aggregates from recent events
   const getSuggestedAggregates = () => {
@@ -91,19 +87,20 @@ export function AggregateTypesList({
       }
     });
 
-    // Only return suggestions that aren't already added by user
+    // Only return suggestions that aren't already added
     return Array.from(suggestedTypes)
-      .filter((type) => !userAggregates.includes(type))
+      .filter((type) => !savedAggregates.some(agg => agg.name === type))
       .sort();
   };
 
   // Filter aggregates based on search query
   const getFilteredAggregates = () => {
-    if (!searchQuery.trim()) return userAggregates;
+    if (!searchQuery.trim()) return savedAggregates;
     
     const query = searchQuery.toLowerCase();
-    return userAggregates.filter((aggregate) =>
-      aggregate.toLowerCase().includes(query)
+    return savedAggregates.filter((aggregate) =>
+      aggregate.name.toLowerCase().includes(query) ||
+      (aggregate.description && aggregate.description.toLowerCase().includes(query))
     );
   };
 
@@ -156,12 +153,12 @@ export function AggregateTypesList({
               className="flex-1 h-10 text-sm bg-gradient-to-r from-background to-background/80 border-primary/30 focus:border-primary focus:ring-4 focus:ring-primary/20 rounded-xl shadow-lg transition-all duration-300"
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  addUserAggregate(newAggregateName);
+                  addNewAggregate(newAggregateName);
                 }
               }}
             />
             <Button
-              onClick={() => addUserAggregate(newAggregateName)}
+              onClick={() => addNewAggregate(newAggregateName)}
               disabled={!newAggregateName.trim()}
               className="h-10 w-10 bg-gradient-to-br from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 rounded-xl cursor-pointer disabled:opacity-50 disabled:scale-100"
             >
@@ -187,7 +184,7 @@ export function AggregateTypesList({
         </div>
 
         <div className="space-y-2 flex-1 overflow-y-auto px-1 pt-1">
-          {userAggregates.length === 0 ? (
+          {savedAggregates.length === 0 ? (
             <div className="text-center py-6 text-muted-foreground">
               <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p className="text-sm text-muted-readable">
@@ -202,13 +199,13 @@ export function AggregateTypesList({
               </p>
             </div>
           ) : (
-            getFilteredAggregates().map((aggregateType, index) => {
-              const isSelected = selectedAggregate === aggregateType;
+            getFilteredAggregates().map((aggregate, index) => {
+              const isSelected = selectedAggregate === aggregate.name;
               const isKeyboardSelected =
                 isActiveColumn && selectedAggregateIndex === index;
               return (
                 <div
-                  key={aggregateType}
+                  key={aggregate.id}
                   ref={isKeyboardSelected ? selectedItemRef : null}
                   className={cn(
                     "p-3 rounded-lg border cursor-pointer transition-colors",
@@ -218,35 +215,41 @@ export function AggregateTypesList({
                     isKeyboardSelected &&
                       "ring-4 ring-blue-500 ring-offset-2 ring-offset-background shadow-2xl border-blue-400"
                   )}
-                  onClick={() => onAggregateSelect(aggregateType)}
+                  onClick={() => onAggregateSelect(aggregate.name)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="min-w-0 flex-1">
                       <h4 className="font-medium text-sm truncate text-info">
-                        {aggregateType}
+                        {aggregate.name}
                       </h4>
-                    </div>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeUserAggregate(aggregateType);
-                          }}
-                          className="h-6 w-6 p-0 text-destructive hover:text-destructive cursor-pointer"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>
-                          Remove from view only - no data is deleted from
-                          EventStore
+                      {aggregate.description && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {aggregate.description}
                         </p>
-                      </TooltipContent>
-                    </Tooltip>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeAggregate(aggregate.id);
+                            }}
+                            className="h-6 w-6 p-0 text-destructive hover:text-destructive cursor-pointer"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            Remove from saved aggregates
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                   </div>
                 </div>
               );
@@ -279,7 +282,7 @@ export function AggregateTypesList({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => addUserAggregate(aggregateType)}
+                    onClick={() => addNewAggregate(aggregateType)}
                     className="h-6 w-6 p-0 cursor-pointer"
                   >
                     <Plus className="h-3 w-3" />

@@ -265,7 +265,7 @@ export const auth = {
       
       // Try alternative endpoints for login validation
       try {
-        const response = await testApi.get('/streams/$all?count=1', {
+        const response = await testApi.get('/streams/$all/head/backward/1', {
           headers: {
             Authorization: `Basic ${token}`,
             Accept: 'application/json',
@@ -359,7 +359,7 @@ export const streams = {
   getRecentAggregateInstances: async (aggregateType: string, limit = 20): Promise<{ streamId: string; eventCount: number; created: string; lastUpdated: string; guid: string; aggregateType: string; }[]> => {
     try {
       // Use $ce-{aggregateType} endpoint to get recent aggregate instances
-      const response = await eventstoreApi.get(`/streams/$ce-${aggregateType}?embed=tryharder&count=${limit}&direction=backward`, {
+      const response = await eventstoreApi.get(`/streams/$ce-${aggregateType}/head/backward/${limit}?embed=tryharder`, {
         headers: {
           Accept: 'application/json',
         },
@@ -406,7 +406,7 @@ export const streams = {
   get: async (streamId: string): Promise<Event[]> => {
     try {
       // Fetch events from specific stream
-      const response = await eventstoreApi.get(`/streams/${streamId}?direction=backward&count=100`, {
+      const response = await eventstoreApi.get(`/streams/${streamId}/head/backward/100`, {
         headers: {
           Accept: 'application/json',
         },

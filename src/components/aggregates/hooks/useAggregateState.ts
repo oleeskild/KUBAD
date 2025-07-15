@@ -23,11 +23,6 @@ export function useAggregateState(
     return saved ? JSON.parse(saved) : false;
   });
 
-  // User aggregates state
-  const [userAggregates, setUserAggregates] = useState<string[]>(() => {
-    const saved = localStorage.getItem("eventstore-aggregates");
-    return saved ? JSON.parse(saved) : [];
-  });
 
   // Pinned streams state
   const [pinnedStreams, setPinnedStreams] = useState<string[]>(() => {
@@ -63,11 +58,6 @@ export function useAggregateState(
     setPinnedStreams(serverPinnedStreams);
   }, []);
 
-  // Save user aggregates to localStorage
-  const saveUserAggregates = (aggregates: string[]) => {
-    localStorage.setItem("eventstore-aggregates", JSON.stringify(aggregates));
-    setUserAggregates(aggregates);
-  };
 
   // Save pinned streams to localStorage
   const savePinnedStreams = (streams: string[]) => {
@@ -113,11 +103,9 @@ export function useAggregateState(
     jsonPathFilter,
     setJsonPathFilter,
     isFullEventDisplay,
-    userAggregates,
     pinnedStreams,
     
     // Functions
-    saveUserAggregates,
     toggleEventDisplayMode,
     togglePinStream,
   };

@@ -1,4 +1,4 @@
-import { createRootRoute, Link, Outlet, useRouter } from '@tanstack/react-router'
+import { createRootRoute, Link, Outlet, useRouter, useLocation } from '@tanstack/react-router'
 import { auth, serverManager } from '@/api/eventstore'
 import { Button } from '@/components/ui/button'
 import { 
@@ -14,12 +14,16 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  Search
+  Search,
+  Menu,
+  X
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { ServerManager } from '@/components/ServerManager'
 import { CommandPalette } from '@/components/CommandPalette'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { SavedAggregatesProvider } from '@/contexts/SavedAggregatesContext'
+import { cn } from '@/lib/utils'
 import {
   Dialog,
   DialogContent,
@@ -31,9 +35,11 @@ import {
 export const Route = createRootRoute({
   component: () => {
     const router = useRouter()
+    const location = useLocation()
     const [currentServer, setCurrentServer] = useState(serverManager.getCurrentServer())
     const [showServerManager, setShowServerManager] = useState(false)
     const [showCommandPalette, setShowCommandPalette] = useState(false)
+    const [sidebarOpen, setSidebarOpen] = useState(false)
     
     // Update current server when it changes
     useEffect(() => {
@@ -109,142 +115,173 @@ export const Route = createRootRoute({
       return <Outlet />
     }
 
+    const navigationItems = [
+      { to: '/', icon: Home, label: 'Home' },
+      { to: '/streams', icon: Database, label: 'Streams' },
+      { to: '/subscriptions', icon: Radio, label: 'Subscriptions' },
+      { to: '/projections', icon: BookOpen, label: 'Projections' },
+      { to: '/stats', icon: Activity, label: 'Statistics' },
+      { to: '/aggregates', icon: Package, label: 'Aggregates', search: { aggregate: undefined, guid: undefined, stream: undefined } },
+      { to: '/servers', icon: Server, label: 'Servers' },
+      { to: '/ce-binary-search', icon: Search, label: 'Temporal Search' },
+      { to: '/manage-aggregates', icon: Settings, label: 'Manage Aggregates' },
+    ]
+
     return (
-      <div className="h-screen flex flex-col bg-background">
-        <header className="border-b flex-shrink-0">
-          <div className="flex h-16 items-center px-4">
-            <div className="flex items-center space-x-4">
-              <img src="/kubad-logo.svg" alt="KUBAD Logo" className="h-8 w-8" />
-              <div className="flex flex-col">
-                <h1 className="text-xl font-bold">KUBAD</h1>
-                <p className="text-xs text-muted-foreground">Kurrent UI But Actually Decent</p>
+      <SavedAggregatesProvider>
+        <div className="h-screen flex bg-background">
+          {/* Sidebar */}
+          <div className={cn(
+            "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          )}>
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b">
+                <div className="flex items-center space-x-3">
+                  <img src="/kubad-logo.svg" alt="KUBAD Logo" className="h-8 w-8" />
+                  <div className="flex flex-col">
+                    <h1 className="text-lg font-bold">KUBAD</h1>
+                    <p className="text-xs text-muted-foreground">Kurrent UI But Actually Decent</p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSidebarOpen(false)}
+                  className="lg:hidden h-8 w-8 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Navigation */}
+              <nav className="flex-1 px-3 py-4 space-y-1">
+                {navigationItems.map((item) => {
+                  const Icon = item.icon
+                  const isActive = location.pathname === item.to
+                  return (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      search={item.search}
+                      onClick={() => setSidebarOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                        isActive
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  )
+                })}
+              </nav>
+
+              {/* Footer */}
+              <div className="p-4 border-t space-y-3">
+                {/* Current Server */}
+                {currentServer && (
+                  <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg">
+                    {getStatusIcon(currentServer.status)}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-medium truncate">{currentServer.name}</div>
+                      <div className="text-xs text-muted-foreground font-mono truncate">
+                        {new URL(currentServer.url).host}
+                      </div>
+                    </div>
+                    <Dialog open={showServerManager} onOpenChange={setShowServerManager}>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                          <Settings className="h-3 w-3" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-6xl w-[90vw] max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Server Management</DialogTitle>
+                        </DialogHeader>
+                        <ServerManager 
+                          onServerSelect={(server) => handleServerSwitch(server.id)}
+                          onClose={() => setShowServerManager(false)}
+                          onServersUpdated={() => setCurrentServer(serverManager.getCurrentServer())}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                )}
+                
+                {/* Action buttons */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowCommandPalette(true)}
+                    className="flex-1 h-8 px-2 text-muted-foreground"
+                  >
+                    <Search className="h-3 w-3 mr-2" />
+                    <span>Search</span>
+                    <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                      ⌘K
+                    </kbd>
+                  </Button>
+                  <ThemeToggle />
+                </div>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="w-full justify-start h-8 px-3"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
               </div>
             </div>
-            <nav className="ml-6 flex items-center space-x-4 lg:space-x-6">
-              <Link
-                to="/"
-                className="text-sm font-medium transition-colors hover:text-primary"
-              >
-                <Home className="h-4 w-4 inline mr-2" />
-                Home
-              </Link>
-              <Link
-                to="/streams"
-                className="text-sm font-medium transition-colors hover:text-primary"
-              >
-                <Database className="h-4 w-4 inline mr-2" />
-                Streams
-              </Link>
-              <Link
-                to="/subscriptions"
-                className="text-sm font-medium transition-colors hover:text-primary"
-              >
-                <Radio className="h-4 w-4 inline mr-2" />
-                Subscriptions
-              </Link>
-              <Link
-                to="/projections"
-                className="text-sm font-medium transition-colors hover:text-primary"
-              >
-                <BookOpen className="h-4 w-4 inline mr-2" />
-                Projections
-              </Link>
-              <Link
-                to="/stats"
-                className="text-sm font-medium transition-colors hover:text-primary"
-              >
-                <Activity className="h-4 w-4 inline mr-2" />
-                Statistics
-              </Link>
-              <Link
-                to="/aggregates"
-                search={{
-                  aggregate: undefined,
-                  guid: undefined,
-                  stream: undefined
-                }}
-                className="text-sm font-medium transition-colors hover:text-primary"
-              >
-                <Package className="h-4 w-4 inline mr-2" />
-                Aggregates
-              </Link>
-              <Link
-                to="/servers"
-                className="text-sm font-medium transition-colors hover:text-primary"
-              >
-                <Server className="h-4 w-4 inline mr-2" />
-                Servers
-              </Link>
-            </nav>
-            <div className="ml-auto flex items-center gap-3">
-              {/* Search/Command Palette Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowCommandPalette(true)}
-                className="h-8 px-3 text-muted-foreground flex items-center gap-2 hover:text-foreground"
-              >
-                <Search className="h-3 w-3" />
-                <span className="hidden sm:inline">Search</span>
-                <kbd className="pointer-events-none hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-                  <span className="text-xs">⌘</span>K
-                </kbd>
-              </Button>
-              
-              {/* Theme Toggle */}
-              <ThemeToggle />
-              
-              {/* Current Server Indicator */}
-              {currentServer && (
-                <div className="flex items-center gap-2 px-3 py-1 bg-muted rounded-md">
-                  {getStatusIcon(currentServer.status)}
-                  <div className="flex flex-col">
-                    <span className="text-xs font-medium">{currentServer.name}</span>
-                    <span className="text-xs text-muted-foreground font-mono">
-                      {new URL(currentServer.url).host}
-                    </span>
-                  </div>
-                  <Dialog open={showServerManager} onOpenChange={setShowServerManager}>
-                    <DialogTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                        <Settings className="h-3 w-3" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-6xl w-[90vw] max-h-[80vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>Server Management</DialogTitle>
-                      </DialogHeader>
-                      <ServerManager 
-                        onServerSelect={(server) => handleServerSwitch(server.id)}
-                        onClose={() => setShowServerManager(false)}
-                        onServersUpdated={() => setCurrentServer(serverManager.getCurrentServer())}
-                      />
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              )}
-              
+          </div>
+
+          {/* Overlay for mobile */}
+          {sidebarOpen && (
+            <div 
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+
+          {/* Main content area */}
+          <div className="flex-1 flex flex-col lg:ml-0">
+            {/* Mobile header */}
+            <header className="lg:hidden flex items-center justify-between p-4 border-b bg-card">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={handleLogout}
+                onClick={() => setSidebarOpen(true)}
+                className="h-8 w-8 p-0"
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
+                <Menu className="h-4 w-4" />
               </Button>
-            </div>
+              <div className="flex items-center space-x-3">
+                <img src="/kubad-logo.svg" alt="KUBAD Logo" className="h-6 w-6" />
+                <h1 className="text-lg font-bold">KUBAD</h1>
+              </div>
+              <div className="w-8" /> {/* Spacer for centering */}
+            </header>
+
+            {/* Main content */}
+            <main className="flex-1 overflow-auto">
+              <Outlet />
+            </main>
           </div>
-        </header>
-        <main className="flex-1 overflow-auto">
-          <Outlet />
-        </main>
         
-        {/* Command Palette */}
-        <CommandPalette 
-          open={showCommandPalette} 
-          onOpenChange={setShowCommandPalette} 
-        />
-      </div>
+          {/* Command Palette */}
+          <CommandPalette 
+            open={showCommandPalette} 
+            onOpenChange={setShowCommandPalette} 
+          />
+        </div>
+      </SavedAggregatesProvider>
     )
   },
 })

@@ -16,7 +16,9 @@ import { Route as StreamsImport } from './routes/streams'
 import { Route as StatsImport } from './routes/stats'
 import { Route as ServersImport } from './routes/servers'
 import { Route as ProjectionsImport } from './routes/projections'
+import { Route as ManageAggregatesImport } from './routes/manage-aggregates'
 import { Route as LoginImport } from './routes/login'
+import { Route as CeBinarySearchImport } from './routes/ce-binary-search'
 import { Route as AggregatesImport } from './routes/aggregates'
 import { Route as IndexImport } from './routes/index'
 import { Route as StreamsStreamIdImport } from './routes/streams.$streamId'
@@ -53,9 +55,21 @@ const ProjectionsRoute = ProjectionsImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ManageAggregatesRoute = ManageAggregatesImport.update({
+  id: '/manage-aggregates',
+  path: '/manage-aggregates',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const LoginRoute = LoginImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CeBinarySearchRoute = CeBinarySearchImport.update({
+  id: '/ce-binary-search',
+  path: '/ce-binary-search',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -95,11 +109,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AggregatesImport
       parentRoute: typeof rootRoute
     }
+    '/ce-binary-search': {
+      id: '/ce-binary-search'
+      path: '/ce-binary-search'
+      fullPath: '/ce-binary-search'
+      preLoaderRoute: typeof CeBinarySearchImport
+      parentRoute: typeof rootRoute
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/manage-aggregates': {
+      id: '/manage-aggregates'
+      path: '/manage-aggregates'
+      fullPath: '/manage-aggregates'
+      preLoaderRoute: typeof ManageAggregatesImport
       parentRoute: typeof rootRoute
     }
     '/projections': {
@@ -163,7 +191,9 @@ const StreamsRouteWithChildren =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aggregates': typeof AggregatesRoute
+  '/ce-binary-search': typeof CeBinarySearchRoute
   '/login': typeof LoginRoute
+  '/manage-aggregates': typeof ManageAggregatesRoute
   '/projections': typeof ProjectionsRoute
   '/servers': typeof ServersRoute
   '/stats': typeof StatsRoute
@@ -175,7 +205,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/aggregates': typeof AggregatesRoute
+  '/ce-binary-search': typeof CeBinarySearchRoute
   '/login': typeof LoginRoute
+  '/manage-aggregates': typeof ManageAggregatesRoute
   '/projections': typeof ProjectionsRoute
   '/servers': typeof ServersRoute
   '/stats': typeof StatsRoute
@@ -188,7 +220,9 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/aggregates': typeof AggregatesRoute
+  '/ce-binary-search': typeof CeBinarySearchRoute
   '/login': typeof LoginRoute
+  '/manage-aggregates': typeof ManageAggregatesRoute
   '/projections': typeof ProjectionsRoute
   '/servers': typeof ServersRoute
   '/stats': typeof StatsRoute
@@ -202,7 +236,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/aggregates'
+    | '/ce-binary-search'
     | '/login'
+    | '/manage-aggregates'
     | '/projections'
     | '/servers'
     | '/stats'
@@ -213,7 +249,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/aggregates'
+    | '/ce-binary-search'
     | '/login'
+    | '/manage-aggregates'
     | '/projections'
     | '/servers'
     | '/stats'
@@ -224,7 +262,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/aggregates'
+    | '/ce-binary-search'
     | '/login'
+    | '/manage-aggregates'
     | '/projections'
     | '/servers'
     | '/stats'
@@ -237,7 +277,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AggregatesRoute: typeof AggregatesRoute
+  CeBinarySearchRoute: typeof CeBinarySearchRoute
   LoginRoute: typeof LoginRoute
+  ManageAggregatesRoute: typeof ManageAggregatesRoute
   ProjectionsRoute: typeof ProjectionsRoute
   ServersRoute: typeof ServersRoute
   StatsRoute: typeof StatsRoute
@@ -248,7 +290,9 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AggregatesRoute: AggregatesRoute,
+  CeBinarySearchRoute: CeBinarySearchRoute,
   LoginRoute: LoginRoute,
+  ManageAggregatesRoute: ManageAggregatesRoute,
   ProjectionsRoute: ProjectionsRoute,
   ServersRoute: ServersRoute,
   StatsRoute: StatsRoute,
@@ -268,7 +312,9 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/aggregates",
+        "/ce-binary-search",
         "/login",
+        "/manage-aggregates",
         "/projections",
         "/servers",
         "/stats",
@@ -282,8 +328,14 @@ export const routeTree = rootRoute
     "/aggregates": {
       "filePath": "aggregates.tsx"
     },
+    "/ce-binary-search": {
+      "filePath": "ce-binary-search.tsx"
+    },
     "/login": {
       "filePath": "login.tsx"
+    },
+    "/manage-aggregates": {
+      "filePath": "manage-aggregates.tsx"
     },
     "/projections": {
       "filePath": "projections.tsx"

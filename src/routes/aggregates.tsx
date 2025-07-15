@@ -56,9 +56,7 @@ function AggregatesPage() {
     jsonPathFilter,
     setJsonPathFilter,
     isFullEventDisplay,
-    userAggregates,
     pinnedStreams,
-    saveUserAggregates,
     toggleEventDisplayMode,
     togglePinStream,
   } = useAggregateState(aggregate, guid, stream);
@@ -250,7 +248,6 @@ function AggregatesPage() {
   useKeyboardNavigation({
     navigationState,
     onNavigationChange: (updates) => setNavigationState(prev => ({ ...prev, ...updates })),
-    userAggregates,
     selectedAggregate,
     selectedAggregateInstances,
     events,
@@ -308,8 +305,6 @@ function AggregatesPage() {
             {/* Column 1: Aggregate Types */}
             <ResizablePanel defaultSize={20} minSize={20}>
               <AggregateTypesList
-                userAggregates={userAggregates}
-                onAggregatesChange={saveUserAggregates}
                 selectedAggregate={selectedAggregate}
                 onAggregateSelect={wrappedHandleAggregateSelect}
                 selectedAggregateIndex={navigationState.selectedAggregateIndex}

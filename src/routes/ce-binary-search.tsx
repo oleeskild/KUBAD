@@ -17,6 +17,12 @@ import {
   Loader2,
   ChevronRight,
   Star,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Copy,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { serverManager } from "@/api/eventstore";
 import { format } from "date-fns";
@@ -73,6 +79,9 @@ function CEBinarySearch() {
     end: number;
   } | null>(null);
   const [useCustomStream, setUseCustomStream] = useState(false);
+  const [sortBy, setSortBy] = useState<'date' | 'position' | 'size' | 'type'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
 
   const { savedAggregates } = useSavedAggregates();
 
@@ -221,6 +230,84 @@ function CEBinarySearch() {
     const baseUrl = currentServer.url;
     const streamUrl = `${baseUrl}/web/index.html#/streams/${encodeURIComponent(streamName)}/${eventPosition}`;
     window.open(streamUrl, "_blank");
+  };
+
+  const getEventSize = (event: EventEntry): number => {
+    return JSON.stringify(event.data).length + JSON.stringify(event.metaData).length;
+  };
+
+  const toggleEventExpansion = (eventId: string) => {
+    setExpandedEvents(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(eventId)) {
+        newSet.delete(eventId);
+      } else {
+        newSet.add(eventId);
+      }
+      return newSet;
+    });
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  const toggleSort = (field: 'date' | 'position' | 'size' | 'type') => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
+
+  const getSortedResults = () => {
+    const sorted = [...results].sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortBy) {
+        case 'date':
+          aValue = getEventDate(a).getTime();
+          bValue = getEventDate(b).getTime();
+          break;
+        case 'position':
+          aValue = a.positionEventNumber;
+          bValue = b.positionEventNumber;
+          break;
+        case 'size':
+          aValue = getEventSize(a);
+          bValue = getEventSize(b);
+          break;
+        case 'type':
+          aValue = a.eventType;
+          bValue = b.eventType;
+          break;
+        default:
+          return 0;
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    return sorted;
+  };
+
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
+
+  const getSortIcon = (field: 'date' | 'position' | 'size' | 'type') => {
+    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4" />;
+    return sortOrder === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
   };
 
   return (
@@ -421,15 +508,55 @@ function CEBinarySearch() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Sorting Controls */}
+              <div className="flex flex-wrap gap-2 mb-4 p-2 bg-muted rounded-lg">
+                <span className="text-sm font-medium self-center">Sort by:</span>
+                <Button
+                  variant={sortBy === 'date' ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => toggleSort('date')}
+                  className="flex items-center gap-1"
+                >
+                  Date {getSortIcon('date')}
+                </Button>
+                <Button
+                  variant={sortBy === 'position' ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => toggleSort('position')}
+                  className="flex items-center gap-1"
+                >
+                  Position {getSortIcon('position')}
+                </Button>
+                <Button
+                  variant={sortBy === 'size' ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => toggleSort('size')}
+                  className="flex items-center gap-1"
+                >
+                  Size {getSortIcon('size')}
+                </Button>
+                <Button
+                  variant={sortBy === 'type' ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => toggleSort('type')}
+                  className="flex items-center gap-1"
+                >
+                  Type {getSortIcon('type')}
+                </Button>
+              </div>
+
               <div className="space-y-4">
-                {results.map((event) => {
+                {getSortedResults().map((event) => {
                   const eventData = JSON.parse(event.data);
+                  const metaData = JSON.parse(event.metaData);
                   const eventDate = getEventDate(event);
+                  const eventSize = getEventSize(event);
+                  const isExpanded = expandedEvents.has(event.eventId);
 
                   return (
                     <div
                       key={event.eventId}
-                      className="space-y-2 p-4 border rounded-lg"
+                      className="space-y-3 p-4 border rounded-lg"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -437,37 +564,122 @@ function CEBinarySearch() {
                           <span className="text-sm text-muted-foreground">
                             Position: {event.positionEventNumber}
                           </span>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            navigateToStream(event.positionEventNumber)
-                          }
-                        >
-                          <Calendar className="mr-2 h-3 w-3" />
-                          View in Stream
-                        </Button>
-                      </div>
-
-                      <div className="text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">Date:</span>
-                          <span className="font-mono">
-                            {format(eventDate, "yyyy-MM-dd HH:mm:ss.SSS")}
+                          <span className="text-sm text-muted-foreground">
+                            Size: {formatBytes(eventSize)}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="font-medium">Stream:</span>
-                          <span className="font-mono text-xs">
-                            {event.streamId}
-                          </span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => toggleEventExpansion(event.eventId)}
+                          >
+                            {isExpanded ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                            {isExpanded ? 'Collapse' : 'Expand'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              navigateToStream(event.positionEventNumber)
+                            }
+                          >
+                            <Calendar className="mr-2 h-3 w-3" />
+                            View in Stream
+                          </Button>
                         </div>
                       </div>
 
-                      {eventData.correlationId && (
-                        <div className="text-xs text-muted-foreground">
-                          Correlation ID: {eventData.correlationId}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">Date:</span>
+                            <span className="font-mono">
+                              {format(eventDate, "yyyy-MM-dd HH:mm:ss.SSS")}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">Stream:</span>
+                            <span className="font-mono text-xs">
+                              {event.streamId}
+                            </span>
+                          </div>
+                          {eventData.correlationId && (
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">Correlation ID:</span>
+                              <span className="font-mono text-xs">
+                                {eventData.correlationId}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="space-y-1">
+                          {eventData.aggregateId && (
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">Aggregate ID:</span>
+                              <span className="font-mono text-xs">
+                                {eventData.aggregateId}
+                              </span>
+                            </div>
+                          )}
+                          {eventData.userName && (
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">User:</span>
+                              <span className="text-xs">
+                                {eventData.userName}
+                              </span>
+                            </div>
+                          )}
+                          {eventData.environment && (
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">Environment:</span>
+                              <span className="text-xs">
+                                {eventData.environment}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {isExpanded && (
+                        <div className="space-y-3 border-t pt-3">
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-medium text-sm">Event Data</h4>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => copyToClipboard(JSON.stringify(eventData, null, 2))}
+                              >
+                                <Copy className="h-3 w-3 mr-1" />
+                                Copy
+                              </Button>
+                            </div>
+                            <pre className="text-xs bg-muted p-3 rounded overflow-auto max-h-60">
+                              {JSON.stringify(eventData, null, 2)}
+                            </pre>
+                          </div>
+                          
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-medium text-sm">Metadata</h4>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => copyToClipboard(JSON.stringify(metaData, null, 2))}
+                              >
+                                <Copy className="h-3 w-3 mr-1" />
+                                Copy
+                              </Button>
+                            </div>
+                            <pre className="text-xs bg-muted p-3 rounded overflow-auto max-h-40">
+                              {JSON.stringify(metaData, null, 2)}
+                            </pre>
+                          </div>
                         </div>
                       )}
                     </div>

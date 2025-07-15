@@ -102,7 +102,6 @@ function AnalyzePage() {
       const data = JSON.parse(event.data)
       const date = new Date(data.occurredAt || event.updated)
       if (isNaN(date.getTime())) {
-        console.warn('Invalid date found:', data.occurredAt, event.updated)
         return new Date(event.updated)
       }
       return date
@@ -169,17 +168,10 @@ function AnalyzePage() {
     const start = new Date(startDate)
     const end = new Date(endDate)
 
-    console.log('Time range:', start.toISOString(), 'to', end.toISOString())
-
     try {
       // Use binary search to find the start and end positions
-      console.log('Finding start position...')
       const startPosition = await binarySearchForDate(start, 'start')
-      console.log('Start position found:', startPosition)
-
-      console.log('Finding end position...')
       const endPosition = await binarySearchForDate(end, 'end')
-      console.log('End position found:', endPosition)
 
       if (startPosition > endPosition) {
         setError('No events found in the specified time range')
@@ -205,11 +197,9 @@ function AnalyzePage() {
         })
 
         allEvents.push(...filteredEvents)
-        console.log(`Fetched batch: ${position} to ${position + limit - 1}, got ${filteredEvents.length} events in range`)
       }
 
       setTotalEvents(allEvents.length)
-      console.log('Total events found:', allEvents.length)
 
       // Process event rate data
       const rateMap = new Map<string, number>()
@@ -252,9 +242,6 @@ function AnalyzePage() {
         .slice(0, 10) // Top 10 event types
 
       setEventTypeData(typeData)
-
-      console.log('Rate data:', rateData)
-      console.log('Type data:', typeData)
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during analysis')

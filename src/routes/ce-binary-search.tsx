@@ -65,10 +65,13 @@ interface StreamResponse {
 
 function CEBinarySearch() {
   const [streamName, setStreamName] = useState("$ce-MyStream");
-  const [targetDate, setTargetDate] = useState(
-    new Date().toISOString().slice(0, 16)
-  );
+  const [targetDate, setTargetDate] = useState(() => {
+    const now = new Date(Date.now() - 60 * 60 * 1000);
+    const localISOTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    return localISOTime;
+  });
   const [timeWindowMinutes, setTimeWindowMinutes] = useState(60);
+  const [eventsLimit, setEventsLimit] = useState(100);
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<EventEntry[]>([]);
   const [searchPath, setSearchPath] = useState<
@@ -79,9 +82,12 @@ function CEBinarySearch() {
     start: number;
     end: number;
   } | null>(null);
+  const [earliestPosition, setEarliestPosition] = useState<number | null>(null);
+  const [latestPosition, setLatestPosition] = useState<number | null>(null);
+  const [loadingMore, setLoadingMore] = useState<'before' | 'after' | null>(null);
   const [useCustomStream, setUseCustomStream] = useState(false);
   const [sortBy, setSortBy] = useState<'date' | 'position' | 'size' | 'type'>('date');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
   const [timezone, setTimezone] = useState<'UTC' | 'Europe/Oslo'>('Europe/Oslo');
 
@@ -137,6 +143,9 @@ function CEBinarySearch() {
     setResults([]);
     setSearchPath([]);
     setFoundRange(null);
+    setEarliestPosition(null);
+    setLatestPosition(null);
+    setLoadingMore(null);
 
     const target = new Date(targetDate);
 
@@ -193,7 +202,7 @@ function CEBinarySearch() {
       const finalResponse = await fetchEvents(
         finalPosition.toString(),
         "forward",
-        100
+        eventsLimit
       );
 
       if (finalResponse && finalResponse.entries.length > 0) {
@@ -210,6 +219,9 @@ function CEBinarySearch() {
             start: relevantEvents[0].positionEventNumber,
             end: relevantEvents[relevantEvents.length - 1].positionEventNumber,
           });
+          // Set initial position bounds for pagination
+          setEarliestPosition(relevantEvents[0].positionEventNumber);
+          setLatestPosition(relevantEvents[relevantEvents.length - 1].positionEventNumber);
         } else {
           setError(
             `No events found within ${timeWindowMinutes} minutes of the target date`
@@ -223,7 +235,85 @@ function CEBinarySearch() {
     } finally {
       setSearching(false);
     }
-  }, [streamName, targetDate, timeWindowMinutes]);
+  }, [streamName, targetDate, timeWindowMinutes, eventsLimit]);
+
+  const loadMore = useCallback(async (direction: 'before' | 'after') => {
+    if (!earliestPosition || !latestPosition || loadingMore) return;
+
+    setLoadingMore(direction);
+    setError(null);
+
+    try {
+      const target = new Date(targetDate);
+      const timeWindow = timeWindowMinutes * 60 * 1000;
+
+      let response: StreamResponse | null = null;
+      
+      if (direction === 'before') {
+        // Load events before the earliest position
+        response = await fetchEvents(
+          Math.max(0, earliestPosition - 1).toString(),
+          "backward",
+          eventsLimit
+        );
+      } else {
+        // Load events after the latest position
+        response = await fetchEvents(
+          (latestPosition + 1).toString(),
+          "forward",
+          eventsLimit
+        );
+      }
+
+      if (response && response.entries.length > 0) {
+        // Filter events within the time window
+        const relevantEvents = response.entries.filter((event) => {
+          const eventDate = getEventDate(event);
+          return Math.abs(eventDate.getTime() - target.getTime()) <= timeWindow;
+        });
+
+        if (relevantEvents.length > 0) {
+          setResults(prev => {
+            const newResults = direction === 'before' 
+              ? [...relevantEvents, ...prev]
+              : [...prev, ...relevantEvents];
+            
+            // Remove duplicates based on eventId
+            const uniqueResults = newResults.filter((event, index, self) =>
+              index === self.findIndex(e => e.eventId === event.eventId)
+            );
+            
+            return uniqueResults;
+          });
+
+          // Update position bounds
+          if (direction === 'before' && relevantEvents.length > 0) {
+            setEarliestPosition(relevantEvents[0].positionEventNumber);
+          } else if (direction === 'after' && relevantEvents.length > 0) {
+            setLatestPosition(relevantEvents[relevantEvents.length - 1].positionEventNumber);
+          }
+
+          // Update found range
+          setFoundRange(prev => {
+            if (!prev) return null;
+            const newStart = direction === 'before' 
+              ? Math.min(prev.start, relevantEvents[0].positionEventNumber)
+              : prev.start;
+            const newEnd = direction === 'after'
+              ? Math.max(prev.end, relevantEvents[relevantEvents.length - 1].positionEventNumber)
+              : prev.end;
+            return { start: newStart, end: newEnd };
+          });
+        }
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An error occurred while loading more events"
+      );
+    } finally {
+      setLoadingMore(null);
+    }
+  }, [streamName, targetDate, timeWindowMinutes, eventsLimit, earliestPosition, latestPosition, loadingMore]);
 
   const navigateToStream = (eventPosition: number) => {
     const currentServer = serverManager.getCurrentServer();
@@ -428,7 +518,7 @@ function CEBinarySearch() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="timeWindow">Time Window (minutes)</Label>
                 <div className="flex items-center gap-2">
@@ -445,6 +535,26 @@ function CEBinarySearch() {
                   />
                   <span className="text-sm text-muted-foreground">
                     Events within ±{timeWindowMinutes} minutes
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="eventsLimit">Events Limit</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="eventsLimit"
+                    type="number"
+                    min="1"
+                    max="10000"
+                    value={eventsLimit}
+                    onChange={(e) =>
+                      setEventsLimit(parseInt(e.target.value) || 100)
+                    }
+                    className="w-32"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    Max events to fetch
                   </span>
                 </div>
               </div>
@@ -542,6 +652,28 @@ function CEBinarySearch() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Load More Before Button */}
+              <div className="mb-4">
+                <Button
+                  onClick={() => loadMore('before')}
+                  disabled={loadingMore !== null || !earliestPosition}
+                  variant="outline"
+                  className="w-full"
+                >
+                  {loadingMore === 'before' ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Loading earlier events...
+                    </>
+                  ) : (
+                    <>
+                      <ArrowUp className="mr-2 h-4 w-4" />
+                      Load More Events Before
+                    </>
+                  )}
+                </Button>
+              </div>
+
               {/* Sorting Controls */}
               <div className="flex flex-wrap gap-2 mb-4 p-2 bg-muted rounded-lg">
                 <span className="text-sm font-medium self-center">Sort by:</span>
@@ -719,6 +851,28 @@ function CEBinarySearch() {
                     </div>
                   );
                 })}
+              </div>
+
+              {/* Load More After Button */}
+              <div className="mt-4">
+                <Button
+                  onClick={() => loadMore('after')}
+                  disabled={loadingMore !== null || !latestPosition}
+                  variant="outline"
+                  className="w-full"
+                >
+                  {loadingMore === 'after' ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Loading later events...
+                    </>
+                  ) : (
+                    <>
+                      <ArrowDown className="mr-2 h-4 w-4" />
+                      Load More Events After
+                    </>
+                  )}
+                </Button>
               </div>
             </CardContent>
           </Card>

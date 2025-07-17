@@ -51,8 +51,14 @@ interface EventTypeData {
 function AnalyzePage() {
   const [streamName, setStreamName] = useState('$all')
   const [useCustomStream, setUseCustomStream] = useState(true)
-  const [startDate, setStartDate] = useState(subHours(new Date(), 24).toISOString().slice(0, 16))
-  const [endDate, setEndDate] = useState(new Date().toISOString().slice(0, 16))
+  const [startDate, setStartDate] = useState(() => {
+    const start = subHours(new Date(), 1);
+    return new Date(start.getTime() - start.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  })
+  const [endDate, setEndDate] = useState(() => {
+    const end = new Date();
+    return new Date(end.getTime() - end.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  })
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [eventRateData, setEventRateData] = useState<EventRateData[]>([])
@@ -273,7 +279,6 @@ function AnalyzePage() {
           percentage: (count / allEvents.length) * 100
         }))
         .sort((a, b) => b.count - a.count)
-        .slice(0, 10) // Top 10 event types
 
       setEventTypeData(typeData)
 
@@ -577,7 +582,7 @@ function AnalyzePage() {
                     <CardHeader>
                       <CardTitle>Event Type Distribution</CardTitle>
                       <CardDescription>
-                        Top 10 event types by count
+                        Event types by count
                       </CardDescription>
                     </CardHeader>
                     <CardContent>

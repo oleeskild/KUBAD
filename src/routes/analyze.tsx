@@ -463,13 +463,32 @@ function AnalyzePage() {
         {(eventRateData.length > 0 || eventTypeData.length > 0) && (
           <>
             {/* Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base">Total Events</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-bold">{totalEvents.toLocaleString()}</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base">Rate per Minute</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">
+                    {(() => {
+                      const start = new Date(startDate)
+                      const end = new Date(endDate)
+                      const durationMs = end.getTime() - start.getTime()
+                      const durationMinutes = durationMs / (1000 * 60)
+                      const ratePerMinute = durationMinutes > 0 ? totalEvents / durationMinutes : 0
+                      return ratePerMinute.toFixed(1)
+                    })()}
+                  </p>
+                  <p className="text-xs text-muted-foreground">events/min</p>
                 </CardContent>
               </Card>
               

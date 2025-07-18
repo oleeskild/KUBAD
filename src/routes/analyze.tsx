@@ -66,6 +66,8 @@ function AnalyzePage() {
   const [totalEvents, setTotalEvents] = useState(0)
   const [timeGranularity, setTimeGranularity] = useState<'hour' | 'minute' | 'second'>('hour')
   const [timezone, setTimezone] = useState<'UTC' | 'Europe/Oslo'>('Europe/Oslo')
+  const [analyzedStartDate, setAnalyzedStartDate] = useState<string | null>(null)
+  const [analyzedEndDate, setAnalyzedEndDate] = useState<string | null>(null)
 
   const { savedAggregates } = useSavedAggregates()
 
@@ -206,6 +208,10 @@ function AnalyzePage() {
 
     const start = convertFromSelectedTimezone(new Date(startDate))
     const end = convertFromSelectedTimezone(new Date(endDate))
+    
+    // Store the analyzed date range
+    setAnalyzedStartDate(startDate)
+    setAnalyzedEndDate(endDate)
 
     try {
       // Use binary search to find the start and end positions
@@ -480,8 +486,9 @@ function AnalyzePage() {
                 <CardContent>
                   <p className="text-2xl font-bold">
                     {(() => {
-                      const start = new Date(startDate)
-                      const end = new Date(endDate)
+                      if (!analyzedStartDate || !analyzedEndDate) return '0.0'
+                      const start = new Date(analyzedStartDate)
+                      const end = new Date(analyzedEndDate)
                       const durationMs = end.getTime() - start.getTime()
                       const durationMinutes = durationMs / (1000 * 60)
                       const ratePerMinute = durationMinutes > 0 ? totalEvents / durationMinutes : 0
@@ -498,7 +505,10 @@ function AnalyzePage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    {formatDateForTimezone(new Date(startDate), 'MMM d, HH:mm')} - {formatDateForTimezone(new Date(endDate), 'MMM d, HH:mm')} ({getTimezoneOffset(timezone)})
+                    {analyzedStartDate && analyzedEndDate
+                      ? `${formatDateForTimezone(new Date(analyzedStartDate), 'MMM d, HH:mm')} - ${formatDateForTimezone(new Date(analyzedEndDate), 'MMM d, HH:mm')} (${getTimezoneOffset(timezone)})`
+                      : 'No analysis performed yet'
+                    }
                   </p>
                 </CardContent>
               </Card>
